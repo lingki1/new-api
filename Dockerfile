@@ -1,7 +1,7 @@
 FROM oven/bun:latest AS builder
 
 WORKDIR /build
-COPY web/package.json .
+COPY web/package.json web/bun.lockb ./
 RUN bun install
 COPY ./web .
 COPY ./VERSION .
