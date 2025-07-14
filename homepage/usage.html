@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New API(lingki) 使用指南 – lingkigame.info</title>
+  <style>
+    /* 基础样式 */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+      margin: 0;
+      padding: 2rem;
+      line-height: 1.6;
+      color: #333;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 16px;
+      padding: 2rem;
+      padding-top: 80px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      backdrop-filter: blur(10px);
+    }
+    h1, h2, h3 {
+      color: #3b5bfd;
+      margin-top: 2rem;
+    }
+    h1 { 
+      font-size: 2.5rem; 
+      text-align: center;
+      margin-bottom: 2rem;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    h2 { 
+      font-size: 1.8rem;
+      border-bottom: 2px solid #f0f0f0;
+      padding-bottom: 0.5rem;
+    }
+    h3 { font-size: 1.4rem; }
+    a { color: #3b5bfd; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    
+    pre {
+      background: #2d3748;
+      color: #e2e8f0;
+      padding: 1.5rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1rem 0;
+      border-left: 4px solid #3b5bfd;
+    }
+    code {
+      font-family: 'Fira Code', Consolas, Monaco, 'Courier New', monospace;
+      padding: 0.2em 0.4em;
+      background: #f8f9fa;
+      border-radius: 4px;
+      color: #e83e8c;
+      font-weight: 500;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 1.5rem 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      border: 1px solid #e2e8f0;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    
+    .info-card {
+      background: linear-gradient(135deg, #667eea20, #764ba220);
+      border-left: 4px solid #3b5bfd;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      border-radius: 8px;
+    }
+    
+    .tip {
+      background: linear-gradient(135deg, #e8f4ff, #f0f8ff);
+      border-left: 4px solid #3b5bfd;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 6px;
+    }
+    .warning {
+      background: linear-gradient(135deg, #fff3e0, #fffbf0);
+      border-left: 4px solid #ff9800;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 6px;
+    }
+    .success {
+      background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+      border-left: 4px solid #4caf50;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 6px;
+    }
+    
+    .step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      background: #3b5bfd;
+      color: white;
+      border-radius: 50%;
+      font-weight: bold;
+      margin-right: 0.5rem;
+      font-size: 0.9rem;
+    }
+    
+    .model-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .model-card {
+      background: #f8f9fa;
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid #e9ecef;
+    }
+    .model-name {
+      font-weight: bold;
+      color: #3b5bfd;
+      margin-bottom: 0.5rem;
+    }
+    
+    .software-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .software-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+    }
+    .software-card:hover {
+      border-color: #3b5bfd;
+      box-shadow: 0 4px 12px rgba(59, 91, 253, 0.15);
+    }
+    .software-title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #3b5bfd;
+      margin-bottom: 0.5rem;
+    }
+    .software-desc {
+      color: #6c757d;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+    
+    ol, ul {
+      padding-left: 1.5rem;
+    }
+    li {
+      margin: 0.5rem 0;
+    }
+    
+    .highlight {
+      background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+      padding: 0.2em 0.4em;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+    
+    /* 返回按钮样式 */
+    .back-button-container {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1000;
+      transition: all 0.3s ease;
+    }
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.7rem 1.2rem;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      text-decoration: none;
+      border-radius: 25px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+    }
+    .back-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+      text-decoration: none;
+      color: white;
+    }
+    .back-button:active {
+      transform: translateY(0);
+    }
+    .back-button.scrolled {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.7), rgba(118, 75, 162, 0.7));
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+    }
+    .back-button.scrolled:hover {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9));
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+    }
+    .back-icon {
+      font-size: 1.2rem;
+      margin-right: 0.5rem;
+      transition: transform 0.3s ease;
+    }
+    .back-button:hover .back-icon {
+      transform: translateX(-3px);
+    }
+    .back-text {
+      font-weight: 500;
+    }
+    
+    /* ≤768px 平板与小屏 */
+    @media (max-width: 768px) {
+      body { padding: 1rem; }
+      .container { padding: 1rem; padding-top: 80px; }
+      h1 { font-size: 2rem; }
+      h2 { font-size: 1.5rem; }
+      .software-grid,
+      .model-grid { grid-template-columns: 1fr; }
+      pre { font-size: 0.9rem; }
+      .back-button-container {
+        top: 15px;
+        left: 15px;
+      }
+      .back-button {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+      }
+    }
+
+    /* ≤480px 手机端 */
+    @media (max-width: 480px) {
+      h1 { font-size: 1.8rem; }
+      h2 { font-size: 1.3rem; }
+      h3 { font-size: 1.1rem; }
+      .card { padding: 1rem; }
+      pre { font-size: 0.8rem; padding: 1rem; }
+      code { font-size: 0.85rem; }
+      .step-number { width: 22px; height: 22px; font-size: 0.75rem; }
+      .container { padding-top: 70px; }
+      .back-button-container {
+        top: 10px;
+        left: 10px;
+      }
+      .back-button {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.85rem;
+      }
+      .back-icon {
+        font-size: 1rem;
+        margin-right: 0.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚀 New API-Lingkigame 使用指南</h1>
+    
+    <div class="info-card">
+      <h2 style="margin-top:0;">📝 服务概览</h2>
+      <p><strong>API 基地址:</strong> <code>https://lingkigame.info/v1</code></p>
+      <p><strong>服务性质:</strong> 免费公益，所有模型费用为 0，仅按每日调用次数限制</p>
+      <p><strong>默认额度:</strong> 每日免费 30 次调用</p>
+      <p><strong>支持协议:</strong> OpenAI API 兼容接口 + Google Gemini 原生接口</p>
+    </div>
+
+    <div class="card">
+      <h2>🤖 支持的模型</h2>
+      <p>目前专注支持 Google Gemini 系列的最新模型：</p>
+      
+      <div class="model-grid">
+        <div class="model-card">
+          <div class="model-name">gemini-2.5-pro</div>
+          <div>最新旗舰模型，具备最强的推理能力和多模态理解，适合复杂任务和深度分析</div>
+        </div>
+        <div class="model-card">
+          <div class="model-name">gemini-2.5-flash</div>
+          <div>平衡性能与速度的中端模型，响应快速，适合日常对话和一般任务</div>
+        </div>
+        <div class="model-card">
+          <div class="model-name">gemini-2.5-flash-lite</div>
+          <div>轻量快速版本，响应极快，适合简单查询和批量处理</div>
+        </div>
+      </div>
+      
+      <div class="tip">
+        <p>💡 <strong>模型选择建议:</strong> 复杂任务用 pro，日常对话用 flash，简单查询用 lite</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🔑 创建 API 密钥</h2>
+      <p>按以下步骤创建你的专属 API 密钥：</p>
+      
+      <ol>
+        <li><span class="step-number">1</span>注册并登录系统（如未注册请先注册账号）</li>
+        <li><span class="step-number">2</span>点击右上角用户头像，选择 <span class="highlight">"API令牌"</span></li>
+        <li><span class="step-number">3</span>点击右上角 <span class="highlight">"➕ 新建令牌"</span> 按钮</li>
+        <li><span class="step-number">4</span>在弹出表单中配置：
+          <ul>
+            <li><strong>名称:</strong> 自定义令牌名称（便于识别管理）</li>
+            <li><strong>剩余额度:</strong> 保持默认值即可</li>
+            <li><strong>过期时间:</strong> 可选，默认永不过期</li>
+            <li><strong>模型限制:</strong> 可选，限制该令牌可使用的模型</li>
+            <li><strong>IP 白名单:</strong> 可选，限制调用来源 IP</li>
+          </ul>
+        </li>
+        <li><span class="step-number">5</span>创建成功后，在令牌列表中点击 <span class="highlight">"复制"</span> 获取密钥</li>
+      </ol>
+      
+      <div class="success">
+        <p>✅ <strong>重要提醒:</strong> 令牌创建后可以随时在列表页面复制查看，支持多次复制使用</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🔌 软件配置教程</h2>
+      <p>以下是常用 AI 交互软件的配置方法：</p>
+
+      <div class="software-grid">
+        <div class="software-card">
+          <div class="software-title">SillyTavern</div>
+          <div class="software-desc">功能强大的 AI 聊天前端，支持角色扮演</div>
+          <ol>
+            <li>打开 SillyTavern，进入 API 设置</li>
+            <li>选择 "OpenAI API"</li>
+            <li>API URL: <code>https://lingkigame.info/v1</code></li>
+            <li>API Key: 填入你的密钥</li>
+            <li>选择模型并保存设置</li>
+          </ol>
+        </div>
+
+        <div class="software-card">
+          <div class="software-title">OpenWebUI</div>
+          <div class="software-desc">开源的 Web 界面，支持多种 AI 模型</div>
+          <ol>
+            <li>进入 OpenWebUI 设置页面</li>
+            <li>在 "Connections" 或 "OpenAI" 设置中：</li>
+            <li>API Base URL: <code>https://lingkigame.info/v1</code></li>
+            <li>API Key: 输入你的密钥</li>
+            <li>保存并刷新页面</li>
+          </ol>
+        </div>
+
+        <div class="software-card">
+          <div class="software-title">CherryStudio</div>
+          <div class="software-desc">功能丰富的 AI 助手客户端</div>
+          <ol>
+            <li>打开 CherryStudio 设置</li>
+            <li>选择 "OpenAI" 或添加新的 API 服务</li>
+            <li>Base URL: <code>https://lingkigame.info/v1</code></li>
+            <li>API Key: 输入你的密钥</li>
+            <li>选择模型并保存配置</li>
+          </ol>
+        </div>
+
+        <div class="software-card">
+          <div class="software-title">Text Generation WebUI</div>
+          <div class="software-desc">Oobabooga 的强大文本生成界面</div>
+          <ol>
+            <li>进入 "Session" 选项卡</li>
+            <li>选择 "OpenAI API" 模式</li>
+            <li>API Base: <code>https://lingkigame.info/v1</code></li>
+            <li>API Key: 输入你的密钥</li>
+            <li>保存配置并重启</li>
+          </ol>
+        </div>
+
+        <div class="software-card">
+          <div class="software-title">ChatBox</div>
+          <div class="software-desc">简洁易用的跨平台 AI 聊天客户端</div>
+          <ol>
+            <li>打开 ChatBox 设置</li>
+            <li>选择 "OpenAI API"</li>
+            <li>API Host: <code>https://lingkigame.info</code></li>
+            <li>API Key: 输入你的密钥</li>
+            <li>选择可用模型</li>
+          </ol>
+        </div>
+
+        <div class="software-card">
+          <div class="software-title">NextChat</div>
+          <div class="software-desc">现代化的 ChatGPT 网页版替代</div>
+          <ol>
+            <li>进入设置页面</li>
+            <li>在 "API 设置" 中：</li>
+            <li>接口地址: <code>https://lingkigame.info</code></li>
+            <li>API Key: 输入你的密钥</li>
+            <li>保存设置</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>💻 代码调用示例</h2>
+      
+      <h3>PowerShell 示例</h3>
+      <pre>
+# 设置 API 信息
+$apiUrl = "https://lingkigame.info/v1/chat/completions"
+$apiKey = "YOUR-API-KEY"  # 替换为你的 API 密钥
+
+# 构建请求头
+$headers = @{
+    "Authorization" = "Bearer $apiKey"
+    "Content-Type" = "application/json"
+}
+
+# 构建请求体
+$body = @{
+    "model" = "gemini-2.5-flash"
+    "messages" = @(
+        @{
+            "role" = "user"
+            "content" = "你好，请介绍一下自己"
+        }
+    )
+    "temperature" = 0.7
+    "max_tokens" = 1000
+} | ConvertTo-Json -Depth 10
+
+# 发送请求
+try {
+    $response = Invoke-RestMethod -Uri $apiUrl -Method Post -Headers $headers -Body $body
+    Write-Host "AI 回复: " $response.choices[0].message.content
+} catch {
+    Write-Host "请求失败: " $_.Exception.Message
+}</pre>
+
+      <h3>Python 示例</h3>
+      <pre>
+import requests
+import json
+
+# API 配置
+api_url = "https://lingkigame.info/v1/chat/completions"
+api_key = "YOUR-API-KEY"  # 替换为你的 API 密钥
+
+# 请求头
+headers = {
+    "Authorization": f"Bearer {api_key}",
+    "Content-Type": "application/json"
+}
+
+# 请求数据
+data = {
+    "model": "gemini-2.5-flash",
+    "messages": [
+        {
+            "role": "user",
+            "content": "你好，请介绍一下自己"
+        }
+    ],
+    "temperature": 0.7,
+    "max_tokens": 1000
+}
+
+# 发送请求
+try:
+    response = requests.post(api_url, headers=headers, json=data)
+    response.raise_for_status()
+    
+    result = response.json()
+    print("AI 回复:", result["choices"][0]["message"]["content"])
+    
+except requests.exceptions.RequestException as e:
+    print(f"请求失败: {e}")
+except json.JSONDecodeError as e:
+    print(f"解析响应失败: {e}")</pre>
+
+      <h3>流式输出示例</h3>
+      <pre>
+# Python 流式调用示例
+import requests
+import json
+
+data = {
+    "model": "gemini-2.5-flash",
+    "messages": [{"role": "user", "content": "写一首关于编程的诗"}],
+    "stream": True  # 启用流式输出
+}
+
+headers = {
+    "Authorization": "Bearer YOUR-API-KEY",
+    "Content-Type": "application/json"
+}
+
+response = requests.post(
+    "https://lingkigame.info/v1/chat/completions",
+    headers=headers,
+    json=data,
+    stream=True
+)
+
+for line in response.iter_lines():
+    if line:
+        line = line.decode('utf-8')
+        if line.startswith('data: '):
+            line = line[6:]  # 移除 'data: ' 前缀
+            if line != '[DONE]':
+                try:
+                    chunk = json.loads(line)
+                    content = chunk['choices'][0]['delta'].get('content', '')
+                    print(content, end='', flush=True)
+                except json.JSONDecodeError:
+                    pass</pre>
+    </div>
+
+    <div class="card">
+      <h2>❓ 常见问题</h2>
+      
+      <h3>Q: 如何获取更多使用额度？</h3>
+      <p>A: 请参考首页的赞助方案：</p>
+      <ul>
+        <li>默认用户：每日 30 次免费</li>
+        <li>赞助 6.6 元/月：每日 100 次</li>
+        <li>赞助 9.9 元/月：每日 200 次</li>
+        <li>贡献 Google 账号：VIP 待遇</li>
+      </ul>
+
+      <h3>Q: 支持哪些 API 接口？</h3>
+      <p>A: 支持标准 OpenAI API 格式，包括：</p>
+      <ul>
+        <li><code>/v1/chat/completions</code> - 对话补全</li>
+        <li><code>/v1/models</code> - 模型列表</li>
+        <li>流式输出 (stream=true)</li>
+        <li>Google Gemini 原生接口</li>
+      </ul>
+
+      <h3>Q: 遇到 429 错误怎么办？</h3>
+      <p>A: 429 错误表示超出每日调用限制，可以：</p>
+      <ul>
+        <li>等待第二天重置（每日凌晨 0 点重置）</li>
+        <li>通过赞助获得更多额度</li>
+        <li>优化 prompt 减少 token 消耗</li>
+      </ul>
+
+      <h3>Q: API 密钥安全吗？</h3>
+      <p>A: 系统采用多重安全措施：</p>
+      <ul>
+        <li>密钥加密存储，不可逆向解析</li>
+        <li>支持 IP 白名单限制</li>
+        <li>可随时禁用或删除令牌</li>
+        <li>访问日志完整记录</li>
+      </ul>
+
+      <div class="warning">
+        <p>⚠️ <strong>安全提醒:</strong> 请勿将 API 密钥分享给他人，避免在公开代码库中硬编码密钥</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📞 技术支持</h2>
+      <p>如遇到问题或需要帮助，可通过以下方式联系：</p>
+      <ul>
+        <li>📧 通过网站联系表单留言</li>
+        <li>💬 查看首页的 QQ/微信群二维码</li>
+        <li>📖 参考在线文档和示例代码</li>
+      </ul>
+      
+      <div class="tip">
+        <p>💡 <strong>使用建议:</strong> 建议先通过 API 测试工具验证配置，确认无误后再集成到具体软件中</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 创建固定的返回按钮
+    document.addEventListener('DOMContentLoaded', function() {
+      // 创建按钮容器
+      const backButtonContainer = document.createElement('div');
+      backButtonContainer.className = 'back-button-container';
+      
+      // 创建返回按钮
+      const backButton = document.createElement('a');
+      backButton.href = 'https://lingkigame.info/';
+      backButton.className = 'back-button';
+      
+      // 创建图标
+      const backIcon = document.createElement('span');
+      backIcon.className = 'back-icon';
+      backIcon.textContent = '←';
+      
+      // 创建文字
+      const backText = document.createElement('span');
+      backText.className = 'back-text';
+      backText.textContent = '返回首页';
+      
+      // 组装按钮
+      backButton.appendChild(backIcon);
+      backButton.appendChild(backText);
+      backButtonContainer.appendChild(backButton);
+      
+      // 添加到页面
+      document.body.appendChild(backButtonContainer);
+      
+      // 监听滚动事件
+      let scrollTimeout;
+      window.addEventListener('scroll', function() {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(function() {
+          if (scrollTop > 100) {
+            backButton.classList.add('scrolled');
+          } else {
+            backButton.classList.remove('scrolled');
+          }
+        }, 10);
+      });
+    });
+  </script>
+</body>
+</html> 

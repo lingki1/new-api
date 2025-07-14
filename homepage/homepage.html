@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google API 公益站</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* 全屏背景渐变 */
+    body {
+      background: linear-gradient(120deg, #ff6e7f 0%, #bfe9ff 100%);
+      background-size: cover;
+      color: white;
+      min-height: 100vh;
+      padding-top: 64px;
+    }
+
+    /* 已移除 gradientShift 动画 */
+
+    /* 容器 */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 3rem;
+    }
+
+    /* 主标题区域 */
+    .hero-section {
+      text-align: center;
+      padding: 4rem 0;
+    }
+
+    .hero-title {
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 800;
+      margin-bottom: 1rem;
+      background: linear-gradient(45deg, #fff, #f0f0f0, #fff);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      /* 去除文字闪烁动画以降低 CPU 占用 */
+      text-shadow: 0 0 30px rgba(255,255,255,0.5);
+    }
+
+    /* 已移除 textShine 动画 */
+
+    .hero-subtitle {
+      font-size: clamp(1.2rem, 4vw, 1.8rem);
+      opacity: 0.9;
+      margin-bottom: 2rem;
+      font-weight: 300;
+      line-height: 1.4;
+    }
+
+    /* 卡片样式 */
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 24px;
+      padding: clamp(1.5rem, 4vw, 3rem);
+      margin-bottom: 2rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 16px 64px rgba(0, 0, 0, 0.2);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* 免费模型卡片 */
+    .models-section {
+      text-align: center;
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 5vw, 3rem);
+      margin-bottom: 2rem;
+      font-weight: 700;
+    }
+
+    .models-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .model-card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .model-card:hover {
+      transform: translateY(-5px) scale(1.02);
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .model-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .model-name {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .model-desc {
+      opacity: 0.8;
+      font-size: 1rem;
+    }
+
+    /* 配额展示 */
+    .quota-section {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .quota-number {
+      font-size: clamp(4rem, 10vw, 8rem);
+      font-weight: 900;
+      color: #ffffff;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 30px rgba(255,255,255,0.8), 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .quota-text {
+      font-size: clamp(1rem, 3vw, 1.4rem);
+      opacity: 0.9;
+      line-height: 1.5;
+    }
+
+    /* 赞助区域 */
+    .sponsor-section {
+      background: rgba(255, 255, 255, 0.1);
+      text-align: center;
+    }
+
+    .sponsor-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .sponsor-card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(15px);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sponsor-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .sponsor-card:hover::before {
+      left: 100%;
+    }
+
+    .sponsor-card:hover {
+      transform: translateY(-10px) scale(1.03);
+      border-color: rgba(255, 255, 255, 0.4);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .sponsor-amount {
+      font-size: clamp(1.6rem, 4vw, 2rem);
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: #ffd700;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    }
+
+    .sponsor-benefit {
+      font-size: clamp(1rem, 3vw, 1.2rem);
+      opacity: 0.9;
+      line-height: 1.4;
+    }
+
+    /* 按钮样式 */
+    .button-group {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      position: relative;
+      overflow: hidden;
+      min-width: 140px;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .btn:hover::before {
+      left: 100%;
+    }
+
+    .btn-wechat {
+      background: rgba(7, 193, 96, 0.3);
+      color: white;
+    }
+
+    .btn-wechat:hover {
+      background: rgba(7, 193, 96, 0.5);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(7, 193, 96, 0.3);
+    }
+
+    .btn-qq {
+      background: rgba(18, 183, 245, 0.3);
+      color: white;
+    }
+
+    .btn-qq:hover {
+      background: rgba(18, 183, 245, 0.5);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(18, 183, 245, 0.3);
+    }
+
+    /* 模态框样式 */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      margin: 10% auto;
+      padding: 2rem;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 24px;
+      text-align: center;
+      position: relative;
+      color: white;
+    }
+
+    .modal-content img {
+      width: 100%;
+      height: auto;
+      border-radius: 16px;
+      margin: 1rem 0;
+    }
+
+    .close-button {
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      color: white;
+      font-size: 2rem;
+      font-weight: bold;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.3s ease;
+    }
+
+    .close-button:hover {
+      opacity: 1;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+        gap: 2rem;
+      }
+
+      .hero-section {
+        padding: 2rem 0;
+      }
+
+      .models-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .sponsor-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .button-group {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .btn {
+        width: 100%;
+        max-width: 280px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 0.5rem;
+      }
+
+      .card {
+        padding: 1.5rem;
+        border-radius: 16px;
+      }
+
+      .modal-content {
+        margin: 20% auto;
+        padding: 1.5rem;
+      }
+    }
+
+    /* 已移除 float 动画 */
+
+    /* 光效背景 */
+    .container::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 主标题区域 -->
+    <section class="hero-section">
+      <h1 class="hero-title">🚀 Google API 公益站</h1>
+      <p class="hero-subtitle">为学习和实验提供免费、稳定的 Gemini AI 服务</p>
+    </section>
+
+    <!-- 免费模型展示 -->
+    <section class="card models-section">
+      <h2 class="section-title">✨ 免费提供的AI模型</h2>
+      <div class="models-grid">
+        <div class="model-card">
+          <span class="model-icon">🧠</span>
+          <div class="model-name">Gemini Pro</div>
+          <div class="model-desc">强大的通用AI模型</div>
+        </div>
+        <div class="model-card">
+          <span class="model-icon">⚡</span>
+          <div class="model-name">Gemini Flash</div>
+          <div class="model-desc">快速响应AI模型</div>
+        </div>
+        <div class="model-card">
+          <span class="model-icon">💫</span>
+          <div class="model-name">Flash Lite</div>
+          <div class="model-desc">轻量级高效模型</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 免费配额 -->
+    <section class="card quota-section">
+      <h2 class="section-title">👥 用户配额</h2>
+      <div class="quota-number">30<span style="font-size: 0.4em; color: #ffffff; text-shadow: 0 0 15px rgba(255,255,255,0.6), 1px 1px 2px rgba(0,0,0,0.3);">次/天</span></div>
+      <p class="quota-text">为保证所有用户获得稳定体验，每日免费调用30次</p>
+    </section>
+
+    <!-- 赞助与贡献 -->
+    <section class="card sponsor-section">
+      <h2 class="section-title">关于我们</h2>
+      <p class="quota-text" style="margin-bottom: 2rem;">您的支持将用于服务器维护，帮助我们持续运营</p>
+      <div class="sponsor-grid">
+        <div class="sponsor-card">
+          <div class="sponsor-amount">🔑 已集成 Gemini API Key：100+</div>
+        </div>
+        <div class="sponsor-card">
+          <div class="sponsor-amount">👥 已注册用户：300+</div>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button class="btn btn-wechat" onclick="openModal('discordModal')">Discord</button>
+        <button class="btn btn-qq" onclick="openModal('qqModal')">QQ群</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- Discord模态框 -->
+  <div id="discordModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" onclick="closeModal('discordModal')">&times;</span>
+      <h3 style="margin-bottom: 1rem;">Discord</h3>
+      <p style="margin-top: 2rem; font-size: 1.2rem; opacity: 0.85;">🚧 Discord 社区建设中，敬请期待！</p>
+    </div>
+  </div>
+
+  <!-- QQ群模态框 -->
+  <div id="qqModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" onclick="closeModal('qqModal')">&times;</span>
+      <h3 style="margin-bottom: 1rem;">QQ群</h3>
+      <img src="qq-qrcode.png" alt="QQ群二维码" loading="lazy">
+      <p style="margin-top: 1rem; opacity: 0.8;">扫描二维码加入QQ群</p>
+    </div>
+  </div>
+
+  <script>
+    function openModal(modalId) {
+      document.getElementById(modalId).style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+
+    // 点击模态框外部关闭
+    window.onclick = function(event) {
+      const modals = document.querySelectorAll('.modal');
+      modals.forEach(modal => {
+        if (event.target === modal) {
+          modal.style.display = 'none';
+          document.body.style.overflow = 'auto';
+        }
+      });
+    }
+
+    // 键盘ESC关闭模态框
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+          modal.style.display = 'none';
+        });
+        document.body.style.overflow = 'auto';
+      }
+    });
+
+    /* 移除鼠标跟随光效脚本，减少重绘 */
+  </script>
+</body>
+</html>
