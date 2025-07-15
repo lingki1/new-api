@@ -7,14 +7,19 @@ import (
 	"github.com/go-redis/redis/v8"
 	"one-api/common"
 	"sync"
+	"time"
 )
 
 //go:embed lua/rate_limit.lua
 var rateLimitScript string
 
+//go:embed lua/sliding_window_rate_limit.lua
+var slidingWindowRateLimitScript string
+
 type RedisLimiter struct {
-	client         *redis.Client
-	limitScriptSHA string
+	client                       *redis.Client
+	limitScriptSHA               string
+	slidingWindowLimitScriptSHA  string
 }
 
 var (
@@ -29,13 +34,56 @@ func New(ctx context.Context, r *redis.Client) *RedisLimiter {
 		if err != nil {
 			common.SysLog(fmt.Sprintf("Failed to load rate limit script: %v", err))
 		}
+		
+		slidingWindowSHA, err := r.ScriptLoad(ctx, slidingWindowRateLimitScript).Result()
+		if err != nil {
+			common.SysLog(fmt.Sprintf("Failed to load sliding window rate limit script: %v", err))
+		}
+		
 		instance = &RedisLimiter{
-			client:         r,
-			limitScriptSHA: limitSHA,
+			client:                      r,
+			limitScriptSHA:              limitSHA,
+			slidingWindowLimitScriptSHA: slidingWindowSHA,
 		}
 	})
 
 	return instance
+}
+
+// SlidingWindowAllow 滑动窗口限流检查和记录
+func (rl *RedisLimiter) SlidingWindowAllow(ctx context.Context, key string, maxCount int, duration int64, shouldRecord bool) (bool, error) {
+	currentTime := time.Now().Unix()
+	recordFlag := 0
+	if shouldRecord {
+		recordFlag = 1
+	}
+
+	// 执行滑动窗口限流脚本
+	result, err := rl.client.EvalSha(
+		ctx,
+		rl.slidingWindowLimitScriptSHA,
+		[]string{key},
+		maxCount,
+		duration,
+		currentTime,
+		recordFlag,
+	).Int()
+
+	if err != nil {
+		return false, fmt.Errorf("sliding window rate limit failed: %w", err)
+	}
+	
+	return result == 1, nil
+}
+
+// SlidingWindowCheck 仅检查限流，不记录请求
+func (rl *RedisLimiter) SlidingWindowCheck(ctx context.Context, key string, maxCount int, duration int64) (bool, error) {
+	return rl.SlidingWindowAllow(ctx, key, maxCount, duration, false)
+}
+
+// SlidingWindowRecord 检查并记录请求
+func (rl *RedisLimiter) SlidingWindowRecord(ctx context.Context, key string, maxCount int, duration int64) (bool, error) {
+	return rl.SlidingWindowAllow(ctx, key, maxCount, duration, true)
 }
 
 func (rl *RedisLimiter) Allow(ctx context.Context, key string, opts ...Option) (bool, error) {
