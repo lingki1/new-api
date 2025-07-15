@@ -77,6 +77,7 @@ func (user *User) GetSetting() dto.UserSetting {
 			common.SysError("failed to unmarshal setting: " + err.Error())
 		}
 	}
+	setting.RecordIpLog = true // 强制为true
 	return setting
 }
 

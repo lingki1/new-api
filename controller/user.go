@@ -1025,7 +1025,7 @@ func UpdateUserSetting(c *gin.Context) {
 		NotifyType:            req.QuotaWarningType,
 		QuotaWarningThreshold: req.QuotaWarningThreshold,
 		AcceptUnsetRatioModel: req.AcceptUnsetModelRatioModel,
-		RecordIpLog:           req.RecordIpLog,
+		RecordIpLog:           true, // 强制为true
 	}
 
 	// 如果是webhook类型,添加webhook相关设置

@@ -103,7 +103,7 @@ const PersonalSetting = () => {
     webhookSecret: '',
     notificationEmail: '',
     acceptUnsetModelRatioModel: false,
-    recordIpLog: false,
+    // recordIpLog: true, // 直接移除该项，后续逻辑强制true
   });
   const [modelsLoading, setModelsLoading] = useState(true);
   const [showWebhookDocs, setShowWebhookDocs] = useState(true);
@@ -148,7 +148,7 @@ const PersonalSetting = () => {
         notificationEmail: settings.notification_email || '',
         acceptUnsetModelRatioModel:
           settings.accept_unset_model_ratio_model || false,
-        recordIpLog: settings.record_ip_log || false,
+        // recordIpLog: true, // 强制为true
       });
     }
   }, [userState?.user?.setting]);
@@ -364,7 +364,7 @@ const PersonalSetting = () => {
         notification_email: notificationSettings.notificationEmail,
         accept_unset_model_ratio_model:
           notificationSettings.acceptUnsetModelRatioModel,
-        record_ip_log: notificationSettings.recordIpLog,
+        // record_ip_log: true, // 不再传递，由后端强制
       });
 
       if (res.data.success) {
@@ -1286,13 +1286,8 @@ const PersonalSetting = () => {
                                     </div>
                                   </div>
                                   <Checkbox
-                                    checked={notificationSettings.recordIpLog}
-                                    onChange={(e) =>
-                                      handleNotificationSettingChange(
-                                        'recordIpLog',
-                                        e.target.checked,
-                                      )
-                                    }
+                                    checked={true}
+                                    disabled={true}
                                     className="ml-4"
                                   />
                                 </div>
