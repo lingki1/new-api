@@ -4,7 +4,6 @@ import (
 	"one-api/common"
 	"one-api/constant"
 	"one-api/dto"
-	"one-api/model"
 	relayconstant "one-api/relay/constant"
 	"strings"
 	"time"
@@ -218,13 +217,8 @@ func GenRelayInfo(c *gin.Context) *RelayInfo {
 	paramOverride := common.GetContextKeyStringMap(c, constant.ContextKeyParamOverride)
 	systemPrompt := c.GetString("system_prompt")
 	
-	// Get system prompt from channel settings
-	if systemPrompt == "" {
-		channel := model.GetChannelById(channelId)
-		if channel != nil && channel.SystemPrompt != nil {
-			systemPrompt = *channel.SystemPrompt
-		}
-	}
+	// System prompt should be set by middleware before reaching here
+	systemPrompt = c.GetString("system_prompt")
 
 	tokenId := common.GetContextKeyInt(c, constant.ContextKeyTokenId)
 	tokenKey := common.GetContextKeyString(c, constant.ContextKeyTokenKey)
