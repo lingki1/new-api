@@ -4,6 +4,7 @@ import (
 	"one-api/common"
 	"one-api/constant"
 	"one-api/dto"
+	"one-api/model"
 	relayconstant "one-api/relay/constant"
 	"strings"
 	"time"
@@ -233,18 +234,6 @@ func GenRelayInfo(c *gin.Context) *RelayInfo {
 	// firstResponseTime = time.Now() - 1 second
 
 	apiType, _ := common.ChannelType2APIType(channelType)
-
-	relayInfo := &RelayInfo{
-		ChannelType:    channelType,
-		ChannelId:     channelId,
-		TokenId:       tokenId,
-		TokenKey:      tokenKey,
-		UserId:        userId,
-		TokenUnlimited: tokenUnlimited,
-		StartTime:     startTime,
-		ApiType:       apiType,
-		SystemPrompt:  systemPrompt,
-	}
 
 	info := &RelayInfo{
 		UserQuota:         common.GetContextKeyInt(c, constant.ContextKeyUserQuota),
