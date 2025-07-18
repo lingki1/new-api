@@ -112,7 +112,15 @@ func TextHelper(c *gin.Context) (openaiErr *dto.OpenAIErrorWithStatusCode) {
 	if err != nil {
 		return service.OpenAIErrorWrapperLocal(err, "model_mapped_error", http.StatusInternalServerError)
 	}
-	relayInfo.SystemPrompt = relayInfo.ChannelSystemPrompt
+
+	// Combine system prompts
+	if relayInfo.SystemPrompt != "" && textRequest.Messages[0].Role == "system" {
+		relayInfo.SystemPrompt = relayInfo.SystemPrompt + "\n\n" + textRequest.Messages[0].Content.(string)
+		textRequest.Messages = textRequest.Messages[1:]
+	} else if textRequest.Messages[0].Role == "system" {
+		relayInfo.SystemPrompt = textRequest.Messages[0].Content.(string)
+		textRequest.Messages = textRequest.Messages[1:]
+	}
 
 	// 获取 promptTokens，如果上下文中已经存在，则直接使用
 	var promptTokens int

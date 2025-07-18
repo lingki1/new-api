@@ -167,3 +167,51 @@ docker stop new-api redis mysql
 - [ ] 数据持久化正常
 
 完成以上步骤后，你的New-API速率限制功能应该能正常工作了。
+
+---
+
+## 附录：搭建安全隔离的测试环境
+
+**警告：** 绝对不要让生产环境和测试环境共享同一个数据库文件和 Redis 数据库。这会导致数据错乱，甚至可能造成生产数据损坏。
+
+为了安全地进行测试，必须将测试环境的数据与生产环境完全隔离。
+
+### 步骤 1：为测试环境创建独立的数据目录
+
+首先，复制一份当前的生产数据库，作为测试环境的起点。
+
+```bash
+# 1. 停止生产容器，确保数据库文件当前没有被写入
+docker stop new-api
+
+# 2. 完整地复制数据目录到新的位置
+cp -r /home/ubuntu/data/new-api /home/ubuntu/data/new-api-test
+
+# 3. 重新启动您的生产容器
+docker start new-api
+```
+
+### 步骤 2：启动测试容器，使用独立的隔离配置
+
+现在，可以启动一个新的测试容器。它将使用新的端口、新的数据目录，并连接到 Redis 的一个不同的逻辑数据库。
+
+Redis 默认有 16 个数据库（编号 0-15）。生产环境默认使用 0 号库。我们可以让测试环境使用 1 号库。
+
+```bash
+docker run --name new-api-test -d --restart always \
+  -p 3000:3000 \
+  -e TZ=Asia/Shanghai \
+  -e REDIS_CONN_STRING=redis://redis:6379/1 \
+  -v /home/ubuntu/data/new-api-test:/data \
+  --link redis:redis \
+  new-api:latest
+```
+
+**关键变化解释：**
+
+*   `--name new-api-test`：为测试容器指定一个新名字，避免与生产容器冲突。
+*   `-p 3000:3000`：将测试环境的端口映射到 `3000`。
+*   `-e REDIS_CONN_STRING=redis://redis:6379/1`：在连接字符串末尾添加 `/1`，这会告诉应用使用 Redis 的 **1号数据库**，从而与生产环境的 0 号库隔离开。
+*   `-v /home/ubuntu/data/new-api-test:/data`：将我们刚刚创建的**独立测试数据目录**挂载到容器中。
+
+通过以上步骤，您就拥有了一个与生产环境完全隔离的安全测试环境，可以放心进行测试。
