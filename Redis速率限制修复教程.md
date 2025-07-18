@@ -215,3 +215,91 @@ docker run --name new-api-test -d --restart always \
 *   `-v /home/ubuntu/data/new-api-test:/data`：将我们刚刚创建的**独立测试数据目录**挂载到容器中。
 
 通过以上步骤，您就拥有了一个与生产环境完全隔离的安全测试环境，可以放心进行测试。
+
+## 数据库迁移指南
+
+在进行数据库结构更改时（如添加新字段），请按以下步骤操作：
+
+### 1. 在测试环境进行迁移测试
+
+```bash
+# 1. 备份测试环境数据
+docker stop new-api-test
+cp -r /home/ubuntu/data/new-api-test /home/ubuntu/data/new-api-test-backup
+
+# 2. 启动 MySQL 测试容器
+docker run --name mysql-test -d --restart always \
+  -e MYSQL_ROOT_PASSWORD=123456 \
+  -e MYSQL_DATABASE=new-api_test \
+  -v /home/ubuntu/data/mysql-test:/var/lib/mysql \
+  mysql:8.2
+
+# 3. 创建并执行迁移文件
+cat > migration_add_system_prompt.sql << 'EOF'
+ALTER TABLE `channels` 
+ADD COLUMN `system_prompt` TEXT DEFAULT NULL COMMENT '渠道级别的系统提示词' AFTER `group`;
+EOF
+
+docker exec -i mysql-test mysql -uroot -p123456 new-api_test < migration_add_system_prompt.sql
+
+# 4. 启动测试容器（添加 MySQL 连接）
+docker run --name new-api-test -d --restart always \
+  -p 3000:3000 \
+  -e TZ=Asia/Shanghai \
+  -e REDIS_CONN_STRING=redis://redis:6379/1 \
+  -e SQL_DSN=root:123456@tcp(mysql-test:3306)/new-api_test \
+  -v /home/ubuntu/data/new-api-test:/data \
+  --link redis:redis \
+  --link mysql-test:mysql-test \
+  new-api:latest
+```
+
+### 2. 验证测试环境
+
+```bash
+# 检查容器状态
+docker ps | grep new-api-test
+
+# 检查日志
+docker logs new-api-test
+
+# 验证数据库字段
+docker exec -i mysql-test mysql -uroot -p123456 new-api_test -e "DESC channels;"
+```
+
+### 3. 生产环境迁移
+
+仅在测试环境完全验证通过后执行：
+
+```bash
+# 1. 备份生产数据
+cp -r /home/ubuntu/data/new-api /home/ubuntu/data/new-api-backup-$(date +%Y%m%d)
+
+# 2. 执行生产环境迁移
+docker exec -i mysql mysql -uroot -p123456 new-api < migration_add_system_prompt.sql
+
+# 3. 重启生产容器
+docker restart new-api
+```
+
+### 4. 回滚方案
+
+如果迁移后出现问题，可以使用以下命令回滚：
+
+```bash
+# 测试环境回滚
+docker exec -i mysql-test mysql -uroot -p123456 new-api_test -e "ALTER TABLE channels DROP COLUMN system_prompt;"
+
+# 如果需要完全恢复测试环境
+docker stop new-api-test
+rm -rf /home/ubuntu/data/new-api-test
+cp -r /home/ubuntu/data/new-api-test-backup /home/ubuntu/data/new-api-test
+docker start new-api-test
+```
+
+关键注意事项：
+1. 始终在测试环境验证迁移
+2. 确保有完整的数据备份
+3. 选择业务低峰期执行迁移
+4. 准备回滚方案
+5. 记录所有执行的 SQL 语句

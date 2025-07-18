@@ -98,10 +98,8 @@ type RelayInfo struct {
 	AudioUsage           bool
 	ReasoningEffort      string
 	ChannelSetting       dto.ChannelSettings
-	SystemPrompt         string // Channel system prompt combined with user system prompt
-```
 	ParamOverride        map[string]interface{}
-	SystemPrompt         string
+	SystemPrompt         string // Channel system prompt combined with user system prompt
 	UserSetting          dto.UserSetting
 	UserEmail            string
 	UserQuota            int
