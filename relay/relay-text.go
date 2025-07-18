@@ -112,6 +112,7 @@ func TextHelper(c *gin.Context) (openaiErr *dto.OpenAIErrorWithStatusCode) {
 	if err != nil {
 		return service.OpenAIErrorWrapperLocal(err, "model_mapped_error", http.StatusInternalServerError)
 	}
+	relayInfo.SystemPrompt = relayInfo.ChannelSystemPrompt
 
 	// 获取 promptTokens，如果上下文中已经存在，则直接使用
 	var promptTokens int
