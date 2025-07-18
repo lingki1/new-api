@@ -127,6 +127,49 @@ func ResponsesHelper(c *gin.Context) (openaiErr *dto.OpenAIErrorWithStatusCode) 
 			}
 		}
 
+		// apply system prompt concatenation
+		if relayInfo.SystemPrompt != "" {
+			reqMap := make(map[string]interface{})
+			err = json.Unmarshal(jsonData, &reqMap)
+			if err != nil {
+				return service.OpenAIErrorWrapperLocal(err, "system_prompt_unmarshal_failed", http.StatusInternalServerError)
+			}
+			
+			// handle messages field
+			if messages, ok := reqMap["messages"].([]interface{}); ok {
+				// find existing system message or create new one
+				hasSystemMessage := false
+				for i, msg := range messages {
+					if msgMap, ok := msg.(map[string]interface{}); ok {
+						if role, ok := msgMap["role"].(string); ok && role == "system" {
+							// prepend channel system prompt to existing system message
+							if content, ok := msgMap["content"].(string); ok {
+								msgMap["content"] = relayInfo.SystemPrompt + "\n\n" + content
+								hasSystemMessage = true
+								break
+							}
+						}
+					}
+				}
+				
+				// if no system message exists, create one at the beginning
+				if !hasSystemMessage {
+					systemMessage := map[string]interface{}{
+						"role":    "system",
+						"content": relayInfo.SystemPrompt,
+					}
+					newMessages := []interface{}{systemMessage}
+					newMessages = append(newMessages, messages...)
+					reqMap["messages"] = newMessages
+				}
+			}
+			
+			jsonData, err = json.Marshal(reqMap)
+			if err != nil {
+				return service.OpenAIErrorWrapperLocal(err, "system_prompt_marshal_failed", http.StatusInternalServerError)
+			}
+		}
+
 		if common.DebugEnabled {
 			println("requestBody: ", string(jsonData))
 		}

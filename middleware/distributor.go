@@ -251,6 +251,7 @@ func SetupContextForSelectedChannel(c *gin.Context, channel *model.Channel, mode
 	c.Set("channel_create_time", channel.CreatedTime)
 	common.SetContextKey(c, constant.ContextKeyChannelSetting, channel.GetSetting())
 	c.Set("param_override", channel.GetParamOverride())
+	c.Set("system_prompt", channel.GetSystemPrompt())
 	if nil != channel.OpenAIOrganization && "" != *channel.OpenAIOrganization {
 		c.Set("channel_organization", *channel.OpenAIOrganization)
 	}

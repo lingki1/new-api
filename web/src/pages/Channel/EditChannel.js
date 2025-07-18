@@ -993,6 +993,26 @@ const EditChannel = (props) => {
                   />
 
                   <Form.TextArea
+                    field='system_prompt'
+                    label={t('系统提示词拼接')}
+                    placeholder={
+                      t('此项可选，用于在API请求的系统提示词前面拼接额外的系统提示词。例如：') +
+                      '\n你是一个专业的AI助手，请始终保持礼貌和专业。'
+                    }
+                    autosize
+                    onChange={(value) => handleInputChange('system_prompt', value)}
+                    extraText={
+                      <Text
+                        className="!text-semi-color-primary cursor-pointer"
+                        onClick={() => handleInputChange('system_prompt', t('你是一个专业的AI助手，请始终保持礼貌和专业。'))}
+                      >
+                        {t('填入模板')}
+                      </Text>
+                    }
+                    showClear
+                  />
+
+                  <Form.TextArea
                     field='status_code_mapping'
                     label={t('状态码复写')}
                     placeholder={
