@@ -39,7 +39,6 @@ type Channel struct {
 	Tag               *string `json:"tag" gorm:"index"`
 	Setting           *string `json:"setting" gorm:"type:text"`
 	ParamOverride     *string `json:"param_override" gorm:"type:text"`
-	SystemPrompt      *string `json:"system_prompt" gorm:"type:text"`
 }
 
 func (channel *Channel) GetModels() []string {
