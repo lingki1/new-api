@@ -98,6 +98,8 @@ type RelayInfo struct {
 	AudioUsage           bool
 	ReasoningEffort      string
 	ChannelSetting       dto.ChannelSettings
+	SystemPrompt         string // Channel system prompt combined with user system prompt
+```
 	ParamOverride        map[string]interface{}
 	SystemPrompt         string
 	UserSetting          dto.UserSetting
@@ -216,6 +218,14 @@ func GenRelayInfo(c *gin.Context) *RelayInfo {
 	channelId := common.GetContextKeyInt(c, constant.ContextKeyChannelId)
 	paramOverride := common.GetContextKeyStringMap(c, constant.ContextKeyParamOverride)
 	systemPrompt := c.GetString("system_prompt")
+	
+	// Get system prompt from channel settings
+	if systemPrompt == "" {
+		channel := model.GetChannelById(channelId)
+		if channel != nil && channel.SystemPrompt != nil {
+			systemPrompt = *channel.SystemPrompt
+		}
+	}
 
 	tokenId := common.GetContextKeyInt(c, constant.ContextKeyTokenId)
 	tokenKey := common.GetContextKeyString(c, constant.ContextKeyTokenKey)
@@ -225,6 +235,18 @@ func GenRelayInfo(c *gin.Context) *RelayInfo {
 	// firstResponseTime = time.Now() - 1 second
 
 	apiType, _ := common.ChannelType2APIType(channelType)
+
+	relayInfo := &RelayInfo{
+		ChannelType:    channelType,
+		ChannelId:     channelId,
+		TokenId:       tokenId,
+		TokenKey:      tokenKey,
+		UserId:        userId,
+		TokenUnlimited: tokenUnlimited,
+		StartTime:     startTime,
+		ApiType:       apiType,
+		SystemPrompt:  systemPrompt,
+	}
 
 	info := &RelayInfo{
 		UserQuota:         common.GetContextKeyInt(c, constant.ContextKeyUserQuota),
