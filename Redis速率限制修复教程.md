@@ -36,7 +36,7 @@ docker rm new-api
 
 ```bash
 docker run --name new-api -d --restart always \
-  -p 3000:3000 \
+  -p 5678:3000 \
   -e TZ=Asia/Shanghai \
   -e REDIS_CONN_STRING=redis://redis:6379 \
   -v /home/ubuntu/data/new-api:/data \
@@ -47,6 +47,7 @@ docker run --name new-api -d --restart always \
 **关键变化说明：**
 - `REDIS_CONN_STRING=redis://redis:6379`：配置Redis连接字符串
 - `--link redis:redis`：连接到Redis容器
+- `-p 5678:3000`：生产环境端口映射
 
 ### 步骤4：验证Redis连接
 
@@ -92,7 +93,7 @@ docker stop new-api
 docker rm new-api
 
 docker run --name new-api -d --restart always \
-  -p 3000:3000 \
+  -p 5678:3000 \
   -e TZ=Asia/Shanghai \
   -e REDIS_CONN_STRING=redis://redis:6379 \
   -e SQL_DSN=root:123456@tcp(mysql:3306)/new-api \
@@ -170,34 +171,41 @@ docker stop new-api redis mysql
 
 ---
 
-## 附录：搭建安全隔离的测试环境
+## 数据库迁移指南 - 系统提示词功能
 
-**警告：** 绝对不要让生产环境和测试环境共享同一个数据库文件和 Redis 数据库。这会导致数据错乱，甚至可能造成生产数据损坏。
+### 重要提醒
 
-为了安全地进行测试，必须将测试环境的数据与生产环境完全隔离。
+**在执行任何迁移操作前，必须先进行数据备份！**
 
-### 步骤 1：为测试环境创建独立的数据目录
+本指南将帮助您为channels表添加system_prompt字段，以支持渠道级别的系统提示词拼接功能。
 
-首先，复制一份当前的生产数据库，作为测试环境的起点。
+### 第一步：创建测试环境
+
+在对生产环境进行迁移之前，我们先创建一个测试环境来验证迁移步骤。
+
+#### 1.1 创建测试数据备份
 
 ```bash
-# 1. 停止生产容器，确保数据库文件当前没有被写入
+# 停止生产环境容器确保数据完整性
 docker stop new-api
 
-# 2. 完整地复制数据目录到新的位置
-cp -r /home/ubuntu/data/new-api /home/ubuntu/data/new-api-test
+# 创建测试环境的数据目录
+sudo mkdir -p /home/ubuntu/data/new-api-test
 
-# 3. 重新启动您的生产容器
+# 复制生产环境数据到测试环境
+sudo cp -r /home/ubuntu/data/new-api/* /home/ubuntu/data/new-api-test/
+
+# 重启生产环境容器
 docker start new-api
+
+# 验证测试数据复制完成
+sudo ls -la /home/ubuntu/data/new-api-test/
 ```
 
-### 步骤 2：启动测试容器，使用独立的隔离配置
-
-现在，可以启动一个新的测试容器。它将使用新的端口、新的数据目录，并连接到 Redis 的一个不同的逻辑数据库。
-
-Redis 默认有 16 个数据库（编号 0-15）。生产环境默认使用 0 号库。我们可以让测试环境使用 1 号库。
+#### 1.2 启动测试容器
 
 ```bash
+# 启动测试环境容器（使用端口3000）
 docker run --name new-api-test -d --restart always \
   -p 3000:3000 \
   -e TZ=Asia/Shanghai \
@@ -207,99 +215,281 @@ docker run --name new-api-test -d --restart always \
   new-api:latest
 ```
 
-**关键变化解释：**
-
-*   `--name new-api-test`：为测试容器指定一个新名字，避免与生产容器冲突。
-*   `-p 3000:3000`：将测试环境的端口映射到 `3000`。
-*   `-e REDIS_CONN_STRING=redis://redis:6379/1`：在连接字符串末尾添加 `/1`，这会告诉应用使用 Redis 的 **1号数据库**，从而与生产环境的 0 号库隔离开。
-*   `-v /home/ubuntu/data/new-api-test:/data`：将我们刚刚创建的**独立测试数据目录**挂载到容器中。
-
-通过以上步骤，您就拥有了一个与生产环境完全隔离的安全测试环境，可以放心进行测试。
-
-## 数据库迁移指南
-
-在进行数据库结构更改时（如添加新字段），请按以下步骤操作：
-
-### 1. 在测试环境进行迁移测试
+#### 1.3 验证测试环境
 
 ```bash
-# 1. 备份测试环境数据
-docker stop new-api-test
-cp -r /home/ubuntu/data/new-api-test /home/ubuntu/data/new-api-test-backup
-
-# 2. 启动 MySQL 测试容器
-docker run --name mysql-test -d --restart always \
-  -e MYSQL_ROOT_PASSWORD=123456 \
-  -e MYSQL_DATABASE=new-api_test \
-  -v /home/ubuntu/data/mysql-test:/var/lib/mysql \
-  mysql:8.2
-
-# 3. 创建并执行迁移文件
-cat > migration_add_system_prompt.sql << 'EOF'
-ALTER TABLE `channels` 
-ADD COLUMN `system_prompt` TEXT DEFAULT NULL COMMENT '渠道级别的系统提示词' AFTER `group`;
-EOF
-
-docker exec -i mysql-test mysql -uroot -p123456 new-api_test < migration_add_system_prompt.sql
-
-# 4. 启动测试容器（添加 MySQL 连接）
-docker run --name new-api-test -d --restart always \
-  -p 3000:3000 \
-  -e TZ=Asia/Shanghai \
-  -e REDIS_CONN_STRING=redis://redis:6379/1 \
-  -e SQL_DSN=root:123456@tcp(mysql-test:3306)/new-api_test \
-  -v /home/ubuntu/data/new-api-test:/data \
-  --link redis:redis \
-  --link mysql-test:mysql-test \
-  new-api:latest
-```
-
-### 2. 验证测试环境
-
-```bash
-# 检查容器状态
+# 检查测试容器状态
 docker ps | grep new-api-test
 
-# 检查日志
+# 检查测试容器日志
 docker logs new-api-test
 
-# 验证数据库字段
-docker exec -i mysql-test mysql -uroot -p123456 new-api_test -e "DESC channels;"
+# 测试访问（确保能正常访问管理界面）
+curl -I http://localhost:3000
 ```
 
-### 3. 生产环境迁移
+### 第二步：在测试环境执行迁移
 
-仅在测试环境完全验证通过后执行：
+#### 2.1 创建测试环境备份
 
 ```bash
-# 1. 备份生产数据
-cp -r /home/ubuntu/data/new-api /home/ubuntu/data/new-api-backup-$(date +%Y%m%d)
+# 为测试环境创建备份
+sudo cp -r /home/ubuntu/data/new-api-test /home/ubuntu/data/new-api-test-backup
 
-# 2. 执行生产环境迁移
-docker exec -i mysql mysql -uroot -p123456 new-api < migration_add_system_prompt.sql
-
-# 3. 重启生产容器
-docker restart new-api
+# 验证备份完成
+sudo ls -la /home/ubuntu/data/new-api-test-backup/
 ```
 
-### 4. 回滚方案
-
-如果迁移后出现问题，可以使用以下命令回滚：
+#### 2.2 执行测试迁移
 
 ```bash
-# 测试环境回滚
-docker exec -i mysql-test mysql -uroot -p123456 new-api_test -e "ALTER TABLE channels DROP COLUMN system_prompt;"
-
-# 如果需要完全恢复测试环境
+# 停止测试容器（确保数据库没有被锁定）
 docker stop new-api-test
-rm -rf /home/ubuntu/data/new-api-test
-cp -r /home/ubuntu/data/new-api-test-backup /home/ubuntu/data/new-api-test
+
+# 在宿主机上安装 sqlite3（如果还没有的话）
+sudo apt update
+sudo apt install sqlite3 -y
+
+# 直接在宿主机上操作数据库文件
+sqlite3 /home/ubuntu/data/new-api-test/one-api.db "ALTER TABLE channels ADD COLUMN system_prompt TEXT DEFAULT NULL;"
+
+# 验证字段添加成功
+sqlite3 /home/ubuntu/data/new-api-test/one-api.db "PRAGMA table_info(channels);" | grep system_prompt
+
+# 应该看到类似输出：
+# 31|system_prompt|TEXT|0||0
+
+# 测试基本查询
+sqlite3 /home/ubuntu/data/new-api-test/one-api.db "SELECT id, name, system_prompt FROM channels LIMIT 3;"
+
+# 重新启动测试容器
 docker start new-api-test
 ```
 
-关键注意事项：
-1. 始终在测试环境验证迁移
-2. 确保有完整的数据备份
-3. 选择业务低峰期执行迁移
-4. 准备回滚方案
-5. 记录所有执行的 SQL 语句
+#### 2.3 重启测试容器并验证
+
+```bash
+# 检查测试容器状态
+docker ps | grep new-api-test
+
+# 检查容器启动日志
+docker logs new-api-test | tail -20
+
+# 检查是否有错误
+docker logs new-api-test | grep -i error
+```
+
+#### 2.4 功能测试
+
+```bash
+# 访问测试环境管理界面
+echo "请访问 http://localhost:3000 测试以下功能："
+echo "1. 登录管理界面"
+echo "2. 进入渠道管理页面"
+echo "3. 编辑任一渠道"
+echo "4. 确认能看到'系统提示词拼接'字段"
+echo "5. 测试保存功能"
+echo "6. 测试API调用是否正常"
+```
+
+### 第三步：生产环境迁移
+
+**仅在测试环境验证成功后执行此步骤！**
+
+#### 3.1 生产环境完整备份
+
+```bash
+# 停止生产环境应用
+docker stop new-api
+
+# 创建带时间戳的完整备份
+sudo cp -r /home/ubuntu/data/new-api /home/ubuntu/data/new-api-backup-$(date +%Y%m%d_%H%M%S)
+
+# 验证备份完成
+sudo ls -la /home/ubuntu/data/new-api-backup-*
+
+# 显示备份大小
+sudo du -sh /home/ubuntu/data/new-api-backup-*
+```
+
+#### 3.2 执行生产环境迁移
+
+```bash
+# 停止生产环境容器（确保数据库没有被锁定）
+docker stop new-api
+
+# 直接在宿主机上操作生产环境数据库
+sqlite3 /home/ubuntu/data/new-api/one-api.db "ALTER TABLE channels ADD COLUMN system_prompt TEXT DEFAULT NULL;"
+
+# 验证迁移成功
+sqlite3 /home/ubuntu/data/new-api/one-api.db "PRAGMA table_info(channels);" | grep system_prompt
+
+# 测试数据完整性
+sqlite3 /home/ubuntu/data/new-api/one-api.db "SELECT COUNT(*) FROM channels;"
+
+# 重新启动生产环境容器
+docker start new-api
+```
+
+#### 3.3 重启生产环境并监控
+
+```bash
+# 检查生产环境容器状态
+docker ps | grep new-api
+
+# 持续监控启动日志
+docker logs -f new-api
+
+# 在另一个终端检查服务可用性
+curl -I http://localhost:5678
+```
+
+### 第四步：清理测试环境
+
+#### 4.1 迁移成功后清理
+
+```bash
+# 停止并删除测试容器
+docker stop new-api-test
+docker rm new-api-test
+
+# 清理测试数据（可选，建议保留一段时间）
+# sudo rm -rf /home/ubuntu/data/new-api-test
+# sudo rm -rf /home/ubuntu/data/new-api-test-backup
+```
+
+### 应急回滚方案
+
+#### 方案1：删除字段回滚
+
+```bash
+# 如果迁移后出现问题，可以删除新字段
+# 停止应用容器
+docker stop new-api
+
+# 从宿主机删除新字段
+sqlite3 /home/ubuntu/data/new-api/one-api.db "ALTER TABLE channels DROP COLUMN system_prompt;"
+
+# 重启应用
+docker start new-api
+```
+
+#### 方案2：完整数据恢复
+
+```bash
+# 停止应用容器
+docker stop new-api
+
+# 删除问题数据
+sudo rm -rf /home/ubuntu/data/new-api
+
+# 恢复备份数据
+sudo cp -r /home/ubuntu/data/new-api-backup-YYYYMMDD_HHMMSS /home/ubuntu/data/new-api
+
+# 重启应用
+docker start new-api
+```
+
+### 迁移完成验证清单
+
+- [ ] 测试环境迁移成功
+- [ ] 测试环境功能验证通过
+- [ ] 生产环境数据备份完成
+- [ ] 生产环境迁移成功
+- [ ] 数据库字段添加成功
+- [ ] 应用正常启动，无错误日志
+- [ ] 管理界面渠道编辑页面显示"系统提示词拼接"字段
+- [ ] 能够成功保存渠道的系统提示词
+- [ ] API调用时系统提示词正确拼接功能
+- [ ] 测试环境清理完成
+
+### 故障排除
+
+**问题1：SQLite字段添加失败**
+```bash
+# 检查宿主机SQLite版本
+sqlite3 --version
+
+# 检查数据库文件权限
+sudo ls -la /home/ubuntu/data/new-api/one-api.db
+
+# 检查磁盘空间
+df -h /home/ubuntu/data/
+
+# 检查数据库文件是否被锁定
+sudo lsof /home/ubuntu/data/new-api/one-api.db
+```
+
+**问题2：应用启动失败**
+```bash
+# 查看详细错误日志
+docker logs new-api 2>&1 | grep -A 10 -B 10 -i error
+
+# 检查数据库连接
+docker exec new-api ls -la /data/
+
+# 从宿主机检查数据库完整性
+sqlite3 /home/ubuntu/data/new-api/one-api.db "PRAGMA integrity_check;"
+```
+
+**问题3：功能不工作**
+```bash
+# 从宿主机验证字段确实存在
+sqlite3 /home/ubuntu/data/new-api/one-api.db "SELECT sql FROM sqlite_master WHERE type='table' AND name='channels';"
+
+# 检查表结构
+sqlite3 /home/ubuntu/data/new-api/one-api.db ".schema channels"
+
+# 检查字段是否有数据
+sqlite3 /home/ubuntu/data/new-api/one-api.db "SELECT id, name, system_prompt FROM channels WHERE system_prompt IS NOT NULL;"
+```
+
+**问题4：数据库文件权限问题**
+```bash
+# 如果出现权限问题，修正数据库文件权限
+sudo chown -R root:root /home/ubuntu/data/new-api/
+sudo chmod -R 755 /home/ubuntu/data/new-api/
+sudo chmod 644 /home/ubuntu/data/new-api/one-api.db
+```
+
+**问题5：数据备份恢复**
+```bash
+# 查看可用备份
+sudo ls -la /home/ubuntu/data/new-api-backup-*
+
+# 恢复特定备份
+sudo rm -rf /home/ubuntu/data/new-api
+sudo cp -r /home/ubuntu/data/new-api-backup-20240101_120000 /home/ubuntu/data/new-api
+docker restart new-api
+```
+
+**问题6：容器内缺少sqlite3工具**
+```bash
+# 如果一定要在容器内操作，可以安装sqlite3
+docker exec -it new-api /bin/sh
+apk add --no-cache sqlite
+sqlite3 /data/one-api.db "your_sql_command_here"
+exit
+
+# 但推荐直接从宿主机操作，更简单可靠
+sqlite3 /home/ubuntu/data/new-api/one-api.db "your_sql_command_here"
+```
+
+完成以上步骤后，您的系统提示词拼接功能应该能正常工作了。
+
+### 宿主机操作的优势
+
+使用宿主机直接操作数据库文件的优势：
+
+1. **无需在容器内安装额外工具**
+2. **操作更直接，不依赖容器状态**
+3. **可以在容器停止状态下安全操作**
+4. **避免容器内权限问题**
+5. **更容易进行备份和恢复操作**
+
+### 注意事项
+
+1. **务必在操作数据库前停止相关容器**，避免数据库锁定问题
+2. **确保宿主机已安装sqlite3工具**：`sudo apt install sqlite3 -y`
+3. **注意文件权限**，必要时使用sudo
+4. **操作前做好数据备份**
