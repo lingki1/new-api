@@ -215,7 +215,7 @@ func TextHelper(c *gin.Context) (openaiErr *dto.OpenAIErrorWithStatusCode) {
 			if messages, ok := reqMap["messages"].([]interface{}); ok {
 				// find existing system message or create new one
 				hasSystemMessage := false
-				for i, msg := range messages {
+				for _, msg := range messages {
 					if msgMap, ok := msg.(map[string]interface{}); ok {
 						if role, ok := msgMap["role"].(string); ok && role == "system" {
 							// prepend channel system prompt to existing system message
