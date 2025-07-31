@@ -45,14 +45,14 @@ docker run --name new-api -d --restart always \
 ```
 
 ###更换请求超时
-docker run --name new-api -d --restart always `
-  -p 5678:3000 `
-  -e TZ=Asia/Shanghai `
-  -e REDIS_CONN_STRING=redis://redis:6379 `
-  -e RELAY_TIMEOUT=300 `
-  -e STREAMING_TIMEOUT=300 `
-  -v /home/ubuntu/data/new-api:/data `
-  --link redis:redis `
+docker run --name new-api -d --restart always \
+  -p 5678:3000 \
+  -e TZ=Asia/Shanghai \
+  -e REDIS_CONN_STRING=redis://redis:6379 \
+  -e RELAY_TIMEOUT=300 \
+  -e STREAMING_TIMEOUT=300 \
+  -v /home/ubuntu/data/new-api:/data \
+  --link redis:redis \
   new-api:latest
 
 
