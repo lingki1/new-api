@@ -255,7 +255,7 @@ func GenRelayInfo(c *gin.Context) *RelayInfo {
 
 		ChannelCreateTime: c.GetInt64("channel_create_time"),
 		ParamOverride:     paramOverride,
-		SystemPrompt:      systemPrompt,
+		SystemPrompt:      "",
 		RelayFormat:       RelayFormatOpenAI,
 		ThinkingContentInfo: ThinkingContentInfo{
 			IsFirstThinkingContent:  true,
