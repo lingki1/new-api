@@ -30,7 +30,6 @@ import {
   Dify,
   Coze,
   SiliconCloud,
-  FastGPT,
 } from '@lobehub/icons';
 
 import {
@@ -388,7 +387,7 @@ export function getChannelIcon(channelType) {
       return <Coze size={iconSize} />;
     case 8: // 自定义渠道
     case 22: // 知识库：FastGPT
-      return <FastGPT.Color size={iconSize} />;
+      return null; // FastGPT图标不存在，暂时不显示
     case 21: // 知识库：AI Proxy
     case 44: // 嵌入模型：MokaAI M3E
     default:

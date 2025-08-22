@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Google API 公益站</title>
+  <title>Gemini API 轮询</title>
   <style>
     * {
       margin: 0;
@@ -19,7 +19,7 @@
 
     /* 全屏背景渐变 */
     body {
-      background: linear-gradient(120deg, #ff6e7f 0%, #bfe9ff 100%);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       background-size: cover;
       color: white;
       min-height: 100vh;
@@ -137,6 +137,13 @@
       font-size: 1rem;
     }
 
+    .model-limit {
+      opacity: 0.7;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      color: #ffd700;
+    }
+
     /* 配额展示 */
     .quota-section {
       text-align: center;
@@ -155,6 +162,73 @@
       font-size: clamp(1rem, 3vw, 1.4rem);
       opacity: 0.9;
       line-height: 1.5;
+    }
+
+    /* 用户类型展示 */
+    .user-types-section {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .user-types-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .user-type-card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(15px);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .user-type-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .user-type-card:hover::before {
+      left: 100%;
+    }
+
+    .user-type-card:hover {
+      transform: translateY(-10px) scale(1.03);
+      border-color: rgba(255, 255, 255, 0.4);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .user-type-title {
+      font-size: clamp(1.2rem, 3vw, 1.5rem);
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: #ffd700;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    }
+
+    .user-type-quota {
+      font-size: clamp(1.4rem, 4vw, 1.8rem);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #ffffff;
+    }
+
+    .user-type-desc {
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
+      opacity: 0.8;
+      line-height: 1.4;
     }
 
     /* 赞助区域 */
@@ -350,6 +424,11 @@
         gap: 1rem;
       }
 
+      .user-types-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
       .sponsor-grid {
         grid-template-columns: 1fr;
         gap: 1rem;
@@ -404,7 +483,7 @@
   <div class="container">
     <!-- 主标题区域 -->
     <section class="hero-section">
-      <h1 class="hero-title">🚀 Google API 公益站</h1>
+      <h1 class="hero-title">🚀 Gemini API 轮询</h1>
       <p class="hero-subtitle">为学习和实验提供免费、稳定的 Gemini AI 服务</p>
     </section>
 
@@ -416,37 +495,65 @@
           <span class="model-icon">🧠</span>
           <div class="model-name">Gemini Pro</div>
           <div class="model-desc">强大的通用AI模型</div>
+          <div class="model-limit">仅支持250K input</div>
         </div>
         <div class="model-card">
           <span class="model-icon">⚡</span>
           <div class="model-name">Gemini Flash</div>
           <div class="model-desc">快速响应AI模型</div>
+          <div class="model-limit">仅支持250K input</div>
         </div>
         <div class="model-card">
           <span class="model-icon">💫</span>
           <div class="model-name">Flash Lite</div>
           <div class="model-desc">轻量级高效模型</div>
+          <div class="model-limit">仅支持250K input</div>
         </div>
       </div>
     </section>
 
-    <!-- 免费配额 -->
+    <!-- 用户配额 -->
     <section class="card quota-section">
       <h2 class="section-title">👥 用户配额</h2>
-      <div class="quota-number">30<span style="font-size: 0.4em; color: #ffffff; text-shadow: 0 0 15px rgba(255,255,255,0.6), 1px 1px 2px rgba(0,0,0,0.3);">次/天</span></div>
-      <p class="quota-text">为保证所有用户获得稳定体验，每日免费调用30次</p>
+      <div class="quota-number">50<span style="font-size: 0.4em; color: #ffffff; text-shadow: 0 0 15px rgba(255,255,255,0.6), 1px 1px 2px rgba(0,0,0,0.3);">次/1000分钟</span></div>
+      <p class="quota-text">注册用户基础配额</p>
     </section>
 
-    <!-- 赞助与贡献 -->
+    <!-- 用户类型 -->
+    <section class="card user-types-section">
+      <h2 class="section-title">🎯 用户类型</h2>
+      <div class="user-types-grid">
+        <div class="user-type-card">
+          <div class="user-type-title">🎯 注册用户</div>
+          <div class="user-type-quota">50次/每1000分钟</div>
+          <div class="user-type-desc">基础用户配额</div>
+        </div>
+        <div class="user-type-card">
+          <div class="user-type-title">🎁 6.6元/月赞助</div>
+          <div class="user-type-quota">100次/每1000分钟</div>
+          <div class="user-type-desc">账号升级至100次/每1000分钟</div>
+        </div>
+        <div class="user-type-card">
+          <div class="user-type-title">⭐ 9.9元/月赞助</div>
+          <div class="user-type-quota">200次/每1000分钟</div>
+          <div class="user-type-desc">账号升级至200次/每1000分钟</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 关于我们 -->
     <section class="card sponsor-section">
       <h2 class="section-title">关于我们</h2>
-      <p class="quota-text" style="margin-bottom: 2rem;">您的支持将用于服务器维护，帮助我们持续运营</p>
+      <p class="quota-text" style="margin-bottom: 2rem;">提供一个无需魔法，解决大部分用户无法获取手机验证google账号的免费公益项目</p>
+      <p class="quota-text" style="margin-bottom: 2rem;">此站用的是 github new-api项目</p>
+      <p class="quota-text" style="margin-bottom: 2rem;">Gemini API key来自用户和朋友的100+ Free tier 账户</p>
+      
       <div class="sponsor-grid">
         <div class="sponsor-card">
           <div class="sponsor-amount">🔑 已集成 Gemini API Key：100+</div>
         </div>
         <div class="sponsor-card">
-          <div class="sponsor-amount">👥 已注册用户：300+</div>
+          <div class="sponsor-amount">👥 群社区活跃用户500+</div>
         </div>
       </div>
 
@@ -471,8 +578,23 @@
     <div class="modal-content">
       <span class="close-button" onclick="closeModal('qqModal')">&times;</span>
       <h3 style="margin-bottom: 1rem;">QQ群</h3>
-      <img src="qq-qrcode.png" alt="QQ群二维码" loading="lazy">
-      <p style="margin-top: 1rem; opacity: 0.8;">扫描二维码加入QQ群</p>
+      <div style="text-align: left; margin: 2rem 0;">
+        <p style="margin: 1rem 0; font-size: 1.1rem; opacity: 0.9;">
+          <span style="color: #ffd700; font-weight: 600;">lingki api 1群：</span>
+          <span style="font-family: monospace; background: rgba(255,255,255,0.1); padding: 0.3rem 0.6rem; border-radius: 4px;">275744243</span>
+          <span style="color: #ff6b6b; margin-left: 0.5rem;">满</span>
+        </p>
+        <p style="margin: 1rem 0; font-size: 1.1rem; opacity: 0.9;">
+          <span style="color: #ffd700; font-weight: 600;">lingki api 2群：</span>
+          <span style="font-family: monospace; background: rgba(255,255,255,0.1); padding: 0.3rem 0.6rem; border-radius: 4px;">1003498113</span>
+          <span style="color: #ff6b6b; margin-left: 0.5rem;">满</span>
+        </p>
+        <p style="margin: 1rem 0; font-size: 1.1rem; opacity: 0.9;">
+          <span style="color: #ffd700; font-weight: 600;">lingki api 3群：</span>
+          <span style="font-family: monospace; background: rgba(255,255,255,0.1); padding: 0.3rem 0.6rem; border-radius: 4px;">720876470</span>
+        </p>
+      </div>
+      <p style="margin-top: 1rem; opacity: 0.8;">复制群号加入QQ群</p>
     </div>
   </div>
 

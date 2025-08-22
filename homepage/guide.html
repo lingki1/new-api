@@ -9,8 +9,7 @@
       margin: 0;
       padding: 0;
       font-family: -apple-system,BlinkMacSystemFont,'Segoe UI','Roboto','Helvetica Neue',Arial,sans-serif;
-      background: linear-gradient(135deg, #ffb6d5 0%, #ff6fcb 50%, #f093fb 100%);
-      background-size: cover;
+
       color: #fff;
       overflow-x: hidden;
     }
@@ -102,6 +101,55 @@
       .qrs img{width:120px;}
       .highlight-tip{font-size:1rem;padding:0.8rem 0.7rem;}
     }
+
+    /* QQ群模态框样式 */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      margin: 10% auto;
+      padding: 2rem;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 24px;
+      text-align: center;
+      position: relative;
+      color: white;
+    }
+
+    .close-button {
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      color: white;
+      font-size: 2rem;
+      font-weight: bold;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.3s ease;
+    }
+
+    .close-button:hover {
+      opacity: 1;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
   </style>
 </head>
 <body>
@@ -112,8 +160,85 @@
         重要提示：注册时如未收到邮件，请检查垃圾邮箱。
       </div>
       <a class="btn" href="https://newapihomepage.pages.dev/usage" target="_blank" rel="noopener noreferrer">查看使用指南</a>
-      <a class="btn" href="https://newapihomepage.pages.dev/qq-qrcode.png" target="_blank" rel="noopener noreferrer">需要帮助</a>
+      <a class="btn" href="#" onclick="showQQGroups(); return false;">需要帮助</a>
+    </div>
+    <div class="card" style="margin-top:2rem;">
+      <h2 style="color:#ffd700;text-align:center;">⭐ SVIP赞助用户</h2>
+      <ul style="color:#333;line-height:1.8;font-size:1rem;padding-left:1.2em;">
+        <li>2025-07-26 16:23:10 yuna1224</li>
+        <li>2025-07-26 16:21:47 yuna123</li>
+        <li>2025-07-26 11:57:14 盐知知知</li>
+        <li>2025-07-26 09:28:31 Nini</li>
+        <li>2025-07-25 13:57:01 linnan</li>
+        <li>2025-07-25 13:45:19 Layla</li>
+        <li>2025-07-25 12:47:54 略略略</li>
+        <li>2025-07-25 12:46:43 （双男主）自己喜欢</li>
+        <li>2025-07-24 10:11:29 okarl</li>
+        <li>2025-07-24 09:49:48 白白</li>
+        <li>2025-07-24 09:40:03 赫yu</li>
+        <li>2025-07-22 08:07:10 兔纸要吃糖</li>
+        <li>2025-07-19 13:21:00 threasin</li>
+      </ul>
     </div>
   </div>
+
+  <!-- QQ群模态框 -->
+  <div id="qqModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" onclick="closeModal('qqModal')">&times;</span>
+      <h3 style="margin-bottom: 1rem;">QQ群</h3>
+      <div style="text-align: left; margin: 2rem 0;">
+        <p style="margin: 1rem 0; font-size: 1.1rem; opacity: 0.9;">
+          <span style="color: #ffd700; font-weight: 600;">lingki api 1群：</span>
+          <span style="font-family: monospace; background: rgba(255,255,255,0.1); padding: 0.3rem 0.6rem; border-radius: 4px;">275744243</span>
+          <span style="color: #ff6b6b; margin-left: 0.5rem;">满</span>
+        </p>
+        <p style="margin: 1rem 0; font-size: 1.1rem; opacity: 0.9;">
+          <span style="color: #ffd700; font-weight: 600;">lingki api 2群：</span>
+          <span style="font-family: monospace; background: rgba(255,255,255,0.1); padding: 0.3rem 0.6rem; border-radius: 4px;">1003498113</span>
+          <span style="color: #ff6b6b; margin-left: 0.5rem;">满</span>
+        </p>
+        <p style="margin: 1rem 0; font-size: 1.1rem; opacity: 0.9;">
+          <span style="color: #ffd700; font-weight: 600;">lingki api 3群：</span>
+          <span style="font-family: monospace; background: rgba(255,255,255,0.1); padding: 0.3rem 0.6rem; border-radius: 4px;">720876470</span>
+        </p>
+      </div>
+      <p style="margin-top: 1rem; opacity: 0.8;">复制群号加入QQ群</p>
+    </div>
+  </div>
+
+  <script>
+    function showQQGroups() {
+      document.getElementById('qqModal').style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+
+    // 点击模态框外部关闭
+    window.onclick = function(event) {
+      const modals = document.querySelectorAll('.modal');
+      modals.forEach(modal => {
+        if (event.target === modal) {
+          modal.style.display = 'none';
+          document.body.style.overflow = 'auto';
+        }
+      });
+    }
+
+    // 键盘ESC关闭模态框
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+          modal.style.display = 'none';
+        });
+        document.body.style.overflow = 'auto';
+      }
+    });
+  </script>
 </body>
 </html> 
