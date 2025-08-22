@@ -33,7 +33,6 @@ import {
   SiliconCloud,
   FastGPT,
   Kling,
-  Jimeng,
 } from '@lobehub/icons';
 
 import {
@@ -392,7 +391,7 @@ export function getChannelIcon(channelType) {
     case 50: // 可灵 Kling
       return <Kling.Color size={iconSize} />;
     case 51: // 即梦 Jimeng
-      return <Jimeng.Color size={iconSize} />;
+      return null; // Jimeng图标不存在，暂时不显示
     case 8: // 自定义渠道
     case 22: // 知识库：FastGPT
       return null; // FastGPT图标不存在，暂时不显示
