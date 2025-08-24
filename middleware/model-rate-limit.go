@@ -20,7 +20,7 @@ const (
 )
 
 // Redis限流处理器 - 使用新的滑动窗口算法
-func redisRateLimitHandler(duration int64, totalMaxCount, successMaxCount int) gin.HandlerFunc {
+func redisRateLimitHandler(duration int64, totalMaxCount, successMaxCount int, model string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId := strconv.Itoa(c.GetInt("id"))
 		ctx := context.Background()
@@ -30,7 +30,7 @@ func redisRateLimitHandler(duration int64, totalMaxCount, successMaxCount int) g
 		rl := limiter.New(ctx, rdb)
 
 		// 1. 检查成功请求数限制
-		successKey := fmt.Sprintf("rateLimit:%s:%s", ModelRequestRateLimitSuccessCountMark, userId)
+		successKey := fmt.Sprintf("rateLimit:%s:%s:%s", ModelRequestRateLimitSuccessCountMark, userId, model)
 		allowed, err := rl.SlidingWindowCheck(ctx, successKey, successMaxCount, duration)
 		if err != nil {
 			fmt.Printf("检查成功请求数限制失败: %v\n", err)
@@ -44,7 +44,7 @@ func redisRateLimitHandler(duration int64, totalMaxCount, successMaxCount int) g
 
 		// 2. 检查总请求数限制（当totalMaxCount为0时会自动跳过）
 		if totalMaxCount > 0 {
-			totalKey := fmt.Sprintf("rateLimit:%s:%s", ModelRequestRateLimitCountMark, userId)
+			totalKey := fmt.Sprintf("rateLimit:%s:%s:%s", ModelRequestRateLimitCountMark, userId, model)
 			allowed, err := rl.SlidingWindowRecord(ctx, totalKey, totalMaxCount, duration)
 			if err != nil {
 				fmt.Printf("检查总请求数限制失败: %v\n", err)
@@ -71,13 +71,13 @@ func redisRateLimitHandler(duration int64, totalMaxCount, successMaxCount int) g
 }
 
 // 内存限流处理器 - 保持原有逻辑
-func memoryRateLimitHandler(duration int64, totalMaxCount, successMaxCount int) gin.HandlerFunc {
+func memoryRateLimitHandler(duration int64, totalMaxCount, successMaxCount int, model string) gin.HandlerFunc {
 	inMemoryRateLimiter.Init(time.Duration(setting.ModelRequestRateLimitDurationMinutes) * time.Minute)
 
 	return func(c *gin.Context) {
 		userId := strconv.Itoa(c.GetInt("id"))
-		totalKey := ModelRequestRateLimitCountMark + userId
-		successKey := ModelRequestRateLimitSuccessCountMark + userId
+		totalKey := ModelRequestRateLimitCountMark + userId + ":" + model
+		successKey := ModelRequestRateLimitSuccessCountMark + userId + ":" + model
 
 		// 1. 检查总请求数限制（当totalMaxCount为0时跳过）
 		if totalMaxCount > 0 && !inMemoryRateLimiter.Request(totalKey, totalMaxCount, duration) {
@@ -123,18 +123,36 @@ func ModelRequestRateLimit() func(c *gin.Context) {
 			group = common.GetContextKeyString(c, constant.ContextKeyUserGroup)
 		}
 
-		//获取分组的限流配置
-		groupTotalCount, groupSuccessCount, found := setting.GetGroupRateLimit(group)
-		if found {
-			totalMaxCount = groupTotalCount
-			successMaxCount = groupSuccessCount
+		// 获取模型名称
+		model := common.GetContextKeyString(c, constant.ContextKeyOriginalModel)
+		if model == "" {
+			// 如果没有模型信息，使用默认限制
+			groupTotalCount, groupSuccessCount, found := setting.GetGroupRateLimit(group)
+			if found {
+				totalMaxCount = groupTotalCount
+				successMaxCount = groupSuccessCount
+			}
+		} else {
+			// 获取分组对特定模型的限流配置
+			groupTotalCount, groupSuccessCount, found := setting.GetGroupModelRateLimit(group, model)
+			if found {
+				totalMaxCount = groupTotalCount
+				successMaxCount = groupSuccessCount
+			} else {
+				// 如果没有找到模型特定的限制，尝试获取分组的一般限制
+				groupTotalCount, groupSuccessCount, found = setting.GetGroupRateLimit(group)
+				if found {
+					totalMaxCount = groupTotalCount
+					successMaxCount = groupSuccessCount
+				}
+			}
 		}
 
 		// 根据存储类型选择并执行限流处理器
 		if common.RedisEnabled {
-			redisRateLimitHandler(duration, totalMaxCount, successMaxCount)(c)
+			redisRateLimitHandler(duration, totalMaxCount, successMaxCount, model)(c)
 		} else {
-			memoryRateLimitHandler(duration, totalMaxCount, successMaxCount)(c)
+			memoryRateLimitHandler(duration, totalMaxCount, successMaxCount, model)(c)
 		}
 	}
 }

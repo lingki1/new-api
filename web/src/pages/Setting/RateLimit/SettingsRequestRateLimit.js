@@ -161,10 +161,10 @@ export default function RequestRateLimit(props) {
                 <Form.TextArea
                   label={t('分组速率限制')}
                   placeholder={t(
-                    '{\n  "default": [200, 100],\n  "vip": [0, 1000]\n}',
+                    '{\n  "default": {\n    "total_count": 200,\n    "success_count": 100,\n    "models": ["gemini-2.5-pro", "gemini-2.5-flash"]\n  },\n  "vip": {\n    "total_count": 0,\n    "success_count": 1000\n  }\n}',
                   )}
                   field={'ModelRequestRateLimitGroup'}
-                autosize={{ minRows: 5, maxRows: 15 }}
+                autosize={{ minRows: 8, maxRows: 20 }}
                 trigger='blur'
                         stopValidateWithError
                 rules={[
@@ -177,11 +177,14 @@ export default function RequestRateLimit(props) {
                     <div>
                       <p>{t('说明：')}</p>
                       <ul>
-                        <li>{t('使用 JSON 对象格式，格式为：{"组名": [最多请求次数, 最多请求完成次数]}')}</li>
-                      <li>{t('示例：{"default": [200, 100], "vip": [0, 1000]}。')}</li>
-                      <li>{t('[最多请求次数]必须大于等于0，[最多请求完成次数]必须大于等于1。')}</li>
+                        <li>{t('使用 JSON 对象格式，支持两种格式：')}</li>
+                        <li>{t('1. 新格式：{"组名": {"total_count": 最多请求次数, "success_count": 最多请求完成次数, "models": ["模型1", "模型2"]}}')}</li>
+                        <li>{t('2. 旧格式：{"组名": [最多请求次数, 最多请求完成次数]}')}</li>
+                        <li>{t('models 字段可选，如果不填写或为空数组，则限制所有模型')}</li>
+                        <li>{t('示例：{"default": {"total_count": 200, "success_count": 100, "models": ["gemini-2.5-pro", "gemini-2.5-flash"]}}')}</li>
+                        <li>{t('[最多请求次数]必须大于等于0，[最多请求完成次数]必须大于等于1。')}</li>
                         <li>{t('分组速率配置优先级高于全局速率限制。')}</li>
-                        <li>{t('限制周期统一使用上方配置的“限制周期”值。')}</li>
+                        <li>{t('限制周期统一使用上方配置的"限制周期"值。')}</li>
                       </ul>
                     </div>
                   }

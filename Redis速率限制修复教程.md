@@ -34,6 +34,11 @@ docker rm new-api
 
 ### 步骤3：重新启动应用容器（添加Redis连接）
 
+构建镜像
+```bash
+docker build -t new-api:latest .
+
+
 ```bash
 docker run --name new-api -d --restart always \
   -p 5678:3000 \
@@ -45,6 +50,7 @@ docker run --name new-api -d --restart always \
 ```
 
 ###更换请求超时
+```bash
 docker run --name new-api -d --restart always \
   -p 5678:3000 \
   -e TZ=Asia/Shanghai \
@@ -218,9 +224,9 @@ sudo ls -la /home/ubuntu/data/new-api-test/
 #### 1.2 启动测试容器
 
 ```bash
-# 启动测试环境容器（使用端口3000）
+# 启动测试环境容器（使用端口3001）
 docker run --name new-api-test -d --restart always \
-  -p 3000:3000 \
+  -p 3001:3000 \
   -e TZ=Asia/Shanghai \
   -e REDIS_CONN_STRING=redis://redis:6379/1 \
   -v /home/ubuntu/data/new-api-test:/data \
