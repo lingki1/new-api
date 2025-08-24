@@ -20,7 +20,7 @@ const (
 )
 
 // Redis限流处理器 - 使用新的滑动窗口算法
-func redisRateLimitHandler(duration int64, totalMaxCount, successMaxCount int, model string) gin.HandlerFunc {
+func redisRateLimitHandler(duration int64, totalMaxCount, successMaxCount int, model, group string, isSharedQuota bool) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId := strconv.Itoa(c.GetInt("id"))
 		ctx := context.Background()
@@ -29,8 +29,19 @@ func redisRateLimitHandler(duration int64, totalMaxCount, successMaxCount int, m
 		// 初始化限流器
 		rl := limiter.New(ctx, rdb)
 
+		// 根据是否共享配额选择不同的key策略
+		var successKey, totalKey string
+		if isSharedQuota {
+			// 共享配额：使用分组key，所有列表中的模型共享同一个计数器
+			successKey = fmt.Sprintf("rateLimit:%s:%s:%s", ModelRequestRateLimitSuccessCountMark, userId, group)
+			totalKey = fmt.Sprintf("rateLimit:%s:%s:%s", ModelRequestRateLimitCountMark, userId, group)
+		} else {
+			// 独立配额：使用模型特定key
+			successKey = fmt.Sprintf("rateLimit:%s:%s:%s", ModelRequestRateLimitSuccessCountMark, userId, model)
+			totalKey = fmt.Sprintf("rateLimit:%s:%s:%s", ModelRequestRateLimitCountMark, userId, model)
+		}
+
 		// 1. 检查成功请求数限制
-		successKey := fmt.Sprintf("rateLimit:%s:%s:%s", ModelRequestRateLimitSuccessCountMark, userId, model)
 		allowed, err := rl.SlidingWindowCheck(ctx, successKey, successMaxCount, duration)
 		if err != nil {
 			fmt.Printf("检查成功请求数限制失败: %v\n", err)
@@ -38,13 +49,16 @@ func redisRateLimitHandler(duration int64, totalMaxCount, successMaxCount int, m
 			return
 		}
 		if !allowed {
-			abortWithOpenAiMessage(c, http.StatusTooManyRequests, fmt.Sprintf("您已达到请求数限制：%d分钟内最多请求%d次", setting.ModelRequestRateLimitDurationMinutes, successMaxCount))
+			if isSharedQuota {
+				abortWithOpenAiMessage(c, http.StatusTooManyRequests, fmt.Sprintf("您已达到分组请求数限制：%d分钟内最多请求%d次", setting.ModelRequestRateLimitDurationMinutes, successMaxCount))
+			} else {
+				abortWithOpenAiMessage(c, http.StatusTooManyRequests, fmt.Sprintf("您已达到请求数限制：%d分钟内最多请求%d次", setting.ModelRequestRateLimitDurationMinutes, successMaxCount))
+			}
 			return
 		}
 
 		// 2. 检查总请求数限制（当totalMaxCount为0时会自动跳过）
 		if totalMaxCount > 0 {
-			totalKey := fmt.Sprintf("rateLimit:%s:%s:%s", ModelRequestRateLimitCountMark, userId, model)
 			allowed, err := rl.SlidingWindowRecord(ctx, totalKey, totalMaxCount, duration)
 			if err != nil {
 				fmt.Printf("检查总请求数限制失败: %v\n", err)
@@ -52,7 +66,11 @@ func redisRateLimitHandler(duration int64, totalMaxCount, successMaxCount int, m
 				return
 			}
 			if !allowed {
-				abortWithOpenAiMessage(c, http.StatusTooManyRequests, fmt.Sprintf("您已达到总请求数限制：%d分钟内最多请求%d次，包括失败次数，请检查您的请求是否正确", setting.ModelRequestRateLimitDurationMinutes, totalMaxCount))
+				if isSharedQuota {
+					abortWithOpenAiMessage(c, http.StatusTooManyRequests, fmt.Sprintf("您已达到分组总请求数限制：%d分钟内最多请求%d次，包括失败次数，请检查您的请求是否正确", setting.ModelRequestRateLimitDurationMinutes, totalMaxCount))
+				} else {
+					abortWithOpenAiMessage(c, http.StatusTooManyRequests, fmt.Sprintf("您已达到总请求数限制：%d分钟内最多请求%d次，包括失败次数，请检查您的请求是否正确", setting.ModelRequestRateLimitDurationMinutes, totalMaxCount))
+				}
 				return
 			}
 		}
@@ -70,18 +88,32 @@ func redisRateLimitHandler(duration int64, totalMaxCount, successMaxCount int, m
 	}
 }
 
-// 内存限流处理器 - 保持原有逻辑
-func memoryRateLimitHandler(duration int64, totalMaxCount, successMaxCount int, model string) gin.HandlerFunc {
+// 内存限流处理器 - 支持共享配额
+func memoryRateLimitHandler(duration int64, totalMaxCount, successMaxCount int, model, group string, isSharedQuota bool) gin.HandlerFunc {
 	inMemoryRateLimiter.Init(time.Duration(setting.ModelRequestRateLimitDurationMinutes) * time.Minute)
 
 	return func(c *gin.Context) {
 		userId := strconv.Itoa(c.GetInt("id"))
-		totalKey := ModelRequestRateLimitCountMark + userId + ":" + model
-		successKey := ModelRequestRateLimitSuccessCountMark + userId + ":" + model
+		
+		// 根据是否共享配额选择不同的key策略
+		var totalKey, successKey string
+		if isSharedQuota {
+			// 共享配额：使用分组key
+			totalKey = ModelRequestRateLimitCountMark + userId + ":" + group
+			successKey = ModelRequestRateLimitSuccessCountMark + userId + ":" + group
+		} else {
+			// 独立配额：使用模型特定key
+			totalKey = ModelRequestRateLimitCountMark + userId + ":" + model
+			successKey = ModelRequestRateLimitSuccessCountMark + userId + ":" + model
+		}
 
 		// 1. 检查总请求数限制（当totalMaxCount为0时跳过）
 		if totalMaxCount > 0 && !inMemoryRateLimiter.Request(totalKey, totalMaxCount, duration) {
-			abortWithOpenAiMessage(c, http.StatusTooManyRequests, fmt.Sprintf("您已达到总请求数限制：%d分钟内最多请求%d次，包括失败次数，请检查您的请求是否正确", setting.ModelRequestRateLimitDurationMinutes, totalMaxCount))
+			if isSharedQuota {
+				abortWithOpenAiMessage(c, http.StatusTooManyRequests, fmt.Sprintf("您已达到分组总请求数限制：%d分钟内最多请求%d次，包括失败次数，请检查您的请求是否正确", setting.ModelRequestRateLimitDurationMinutes, totalMaxCount))
+			} else {
+				abortWithOpenAiMessage(c, http.StatusTooManyRequests, fmt.Sprintf("您已达到总请求数限制：%d分钟内最多请求%d次，包括失败次数，请检查您的请求是否正确", setting.ModelRequestRateLimitDurationMinutes, totalMaxCount))
+			}
 			return
 		}
 
@@ -89,7 +121,11 @@ func memoryRateLimitHandler(duration int64, totalMaxCount, successMaxCount int, 
 		// 使用一个临时key来检查限制，这样可以避免实际记录
 		checkKey := successKey + "_check"
 		if !inMemoryRateLimiter.Request(checkKey, successMaxCount, duration) {
-			abortWithOpenAiMessage(c, http.StatusTooManyRequests, fmt.Sprintf("您已达到请求数限制：%d分钟内最多请求%d次", setting.ModelRequestRateLimitDurationMinutes, successMaxCount))
+			if isSharedQuota {
+				abortWithOpenAiMessage(c, http.StatusTooManyRequests, fmt.Sprintf("您已达到分组请求数限制：%d分钟内最多请求%d次", setting.ModelRequestRateLimitDurationMinutes, successMaxCount))
+			} else {
+				abortWithOpenAiMessage(c, http.StatusTooManyRequests, fmt.Sprintf("您已达到请求数限制：%d分钟内最多请求%d次", setting.ModelRequestRateLimitDurationMinutes, successMaxCount))
+			}
 			return
 		}
 
@@ -140,9 +176,18 @@ func ModelRequestRateLimit() func(c *gin.Context) {
 			// 获取分组对特定模型的限流配置
 			groupTotalCount, groupSuccessCount, found := setting.GetGroupModelRateLimit(group, model)
 			if found {
-				// 找到了模型特定的限制，使用该限制
+				// 找到了模型特定的限制，使用共享配额（所有列表中的模型共享同一个计数器）
 				totalMaxCount = groupTotalCount
 				successMaxCount = groupSuccessCount
+				fmt.Printf("DEBUG: 模型 %s 在分组 %s 的限制列表中，使用共享配额: total=%d, success=%d\n", model, group, totalMaxCount, successMaxCount)
+				
+				// 使用共享配额
+				if common.RedisEnabled {
+					redisRateLimitHandler(duration, totalMaxCount, successMaxCount, model, group, true)(c)
+				} else {
+					memoryRateLimitHandler(duration, totalMaxCount, successMaxCount, model, group, true)(c)
+				}
+				return
 			} else {
 				// 如果没有找到模型特定的限制，检查是否有分组的一般限制
 				groupTotalCount, groupSuccessCount, found = setting.GetGroupRateLimit(group)
@@ -155,20 +200,29 @@ func ModelRequestRateLimit() func(c *gin.Context) {
 						c.Next()
 						return
 					} else {
-						// 如果分组没有配置模型列表（空数组），则使用分组的一般限制
+						// 如果分组没有配置模型列表（空数组），则使用分组的一般限制，独立配额
 						totalMaxCount = groupTotalCount
 						successMaxCount = groupSuccessCount
+						fmt.Printf("DEBUG: 分组 %s 没有配置模型列表，使用独立配额: total=%d, success=%d\n", group, totalMaxCount, successMaxCount)
 					}
+				} else {
+					fmt.Printf("DEBUG: 未找到任何限制配置，使用全局默认限制\n")
 				}
-				// 如果没有找到任何限制配置，使用全局默认限制
+				// 使用独立配额
+				if common.RedisEnabled {
+					redisRateLimitHandler(duration, totalMaxCount, successMaxCount, model, group, false)(c)
+				} else {
+					memoryRateLimitHandler(duration, totalMaxCount, successMaxCount, model, group, false)(c)
+				}
+				return
 			}
 		}
 
-		// 根据存储类型选择并执行限流处理器
+		// 默认情况，使用独立配额
 		if common.RedisEnabled {
-			redisRateLimitHandler(duration, totalMaxCount, successMaxCount, model)(c)
+			redisRateLimitHandler(duration, totalMaxCount, successMaxCount, model, group, false)(c)
 		} else {
-			memoryRateLimitHandler(duration, totalMaxCount, successMaxCount, model)(c)
+			memoryRateLimitHandler(duration, totalMaxCount, successMaxCount, model, group, false)(c)
 		}
 	}
 }
