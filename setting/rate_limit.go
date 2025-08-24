@@ -109,6 +109,24 @@ func GetGroupModelRateLimit(group, model string) (totalCount, successCount int, 
 	return 0, 0, false
 }
 
+// 新增：检查分组是否配置了模型列表
+func HasGroupModelList(group string) bool {
+	ModelRequestRateLimitMutex.RLock()
+	defer ModelRequestRateLimitMutex.RUnlock()
+
+	if ModelRequestRateLimitGroup == nil {
+		return false
+	}
+
+	limits, found := ModelRequestRateLimitGroup[group]
+	if !found {
+		return false
+	}
+
+	// 如果配置了模型列表且不为空，则返回true
+	return len(limits.Models) > 0
+}
+
 func CheckModelRequestRateLimitGroup(jsonStr string) error {
 	// 尝试解析新格式
 	var newFormat map[string]GroupRateLimit

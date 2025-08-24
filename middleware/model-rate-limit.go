@@ -136,15 +136,26 @@ func ModelRequestRateLimit() func(c *gin.Context) {
 			// 获取分组对特定模型的限流配置
 			groupTotalCount, groupSuccessCount, found := setting.GetGroupModelRateLimit(group, model)
 			if found {
+				// 找到了模型特定的限制，使用该限制
 				totalMaxCount = groupTotalCount
 				successMaxCount = groupSuccessCount
 			} else {
-				// 如果没有找到模型特定的限制，尝试获取分组的一般限制
+				// 如果没有找到模型特定的限制，检查是否有分组的一般限制
 				groupTotalCount, groupSuccessCount, found = setting.GetGroupRateLimit(group)
 				if found {
-					totalMaxCount = groupTotalCount
-					successMaxCount = groupSuccessCount
+					// 检查该分组是否配置了模型列表
+					if setting.HasGroupModelList(group) {
+						// 如果分组配置了模型列表，但当前模型不在列表中，则不进行限制
+						// 直接跳过限流检查
+						c.Next()
+						return
+					} else {
+						// 如果分组没有配置模型列表（空数组），则使用分组的一般限制
+						totalMaxCount = groupTotalCount
+						successMaxCount = groupSuccessCount
+					}
 				}
+				// 如果没有找到任何限制配置，使用全局默认限制
 			}
 		}
 
