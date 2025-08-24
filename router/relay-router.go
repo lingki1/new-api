@@ -21,22 +21,24 @@ func SetRelayRouter(router *gin.Engine) {
 	}
 	playgroundRouter := router.Group("/pg")
 	playgroundRouter.Use(middleware.UserAuth(), middleware.Distribute())
+	playgroundRouter.Use(middleware.ModelRequestRateLimit())
 	{
 		playgroundRouter.POST("/chat/completions", controller.Playground)
 	}
 	relayV1Router := router.Group("/v1")
 	relayV1Router.Use(middleware.TokenAuth())
-	relayV1Router.Use(middleware.ModelRequestRateLimit())
 	{
 		// WebSocket 路由
 		wsRouter := relayV1Router.Group("")
 		wsRouter.Use(middleware.Distribute())
+		wsRouter.Use(middleware.ModelRequestRateLimit())
 		wsRouter.GET("/realtime", controller.WssRelay)
 	}
 	{
 		//http router
 		httpRouter := relayV1Router.Group("")
 		httpRouter.Use(middleware.Distribute())
+		httpRouter.Use(middleware.ModelRequestRateLimit())
 		httpRouter.POST("/messages", controller.RelayClaude)
 		httpRouter.POST("/completions", controller.Relay)
 		httpRouter.POST("/chat/completions", controller.Relay)
@@ -75,6 +77,7 @@ func SetRelayRouter(router *gin.Engine) {
 
 	relaySunoRouter := router.Group("/suno")
 	relaySunoRouter.Use(middleware.TokenAuth(), middleware.Distribute())
+	relaySunoRouter.Use(middleware.ModelRequestRateLimit())
 	{
 		relaySunoRouter.POST("/submit/:action", controller.RelayTask)
 		relaySunoRouter.POST("/fetch", controller.RelayTask)
@@ -83,8 +86,8 @@ func SetRelayRouter(router *gin.Engine) {
 
 	relayGeminiRouter := router.Group("/v1beta")
 	relayGeminiRouter.Use(middleware.TokenAuth())
-	relayGeminiRouter.Use(middleware.ModelRequestRateLimit())
 	relayGeminiRouter.Use(middleware.Distribute())
+	relayGeminiRouter.Use(middleware.ModelRequestRateLimit())
 	{
 		// Gemini API 路径格式: /v1beta/models/{model_name}:{action}
 		relayGeminiRouter.POST("/models/*path", controller.Relay)
@@ -94,6 +97,7 @@ func SetRelayRouter(router *gin.Engine) {
 func registerMjRouterGroup(relayMjRouter *gin.RouterGroup) {
 	relayMjRouter.GET("/image/:id", relay.RelayMidjourneyImage)
 	relayMjRouter.Use(middleware.TokenAuth(), middleware.Distribute())
+	relayMjRouter.Use(middleware.ModelRequestRateLimit())
 	{
 		relayMjRouter.POST("/submit/action", controller.RelayMidjourney)
 		relayMjRouter.POST("/submit/shorten", controller.RelayMidjourney)

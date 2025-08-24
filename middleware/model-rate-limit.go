@@ -125,6 +125,10 @@ func ModelRequestRateLimit() func(c *gin.Context) {
 
 		// 获取模型名称
 		model := common.GetContextKeyString(c, constant.ContextKeyOriginalModel)
+		
+		// 临时调试信息 - 可以在确认修复后删除
+		fmt.Printf("DEBUG: 用户分组=%s, 模型=%s\n", group, model)
+		
 		if model == "" {
 			// 如果没有模型信息，使用默认限制
 			groupTotalCount, groupSuccessCount, found := setting.GetGroupRateLimit(group)
@@ -147,6 +151,7 @@ func ModelRequestRateLimit() func(c *gin.Context) {
 					if setting.HasGroupModelList(group) {
 						// 如果分组配置了模型列表，但当前模型不在列表中，则不进行限制
 						// 直接跳过限流检查
+						fmt.Printf("DEBUG: 模型 %s 不在分组 %s 的限制列表中，跳过限制检查\n", model, group)
 						c.Next()
 						return
 					} else {
