@@ -37,7 +37,7 @@ docker rm new-api
 构建镜像
 ```bash
 docker build -t new-api:latest .
-
+docker build -t xingxing-api:latest .
 
 ```bash
 docker run --name new-api -d --restart always \
@@ -57,9 +57,22 @@ docker run --name new-api -d --restart always \
   -e REDIS_CONN_STRING=redis://redis:6379 \
   -e RELAY_TIMEOUT=300 \
   -e STREAMING_TIMEOUT=300 \
+  -e ERROR_LOG_ENABLED=true \
   -v /home/ubuntu/data/new-api:/data \
   --link redis:redis \
   new-api:latest
+
+新星星：
+docker run --name xingxing-api -d --restart always \
+  -p 5555:3000 \
+  -e TZ=Asia/Shanghai \
+  -e REDIS_CONN_STRING=redis://redis:6379/3 \
+  -e RELAY_TIMEOUT=300 \
+  -e STREAMING_TIMEOUT=300 \
+  -e ERROR_LOG_ENABLED=true \
+  -v /home/ubuntu/data/xingxing-api:/data \
+  --link redis:redis \
+  xingxing-api:latest
 
 
 
