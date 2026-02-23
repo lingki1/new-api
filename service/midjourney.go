@@ -6,19 +6,20 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"one-api/common"
-	"one-api/constant"
-	"one-api/dto"
-	relayconstant "one-api/relay/constant"
-	"one-api/setting"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/QuantumNous/new-api/common"
+	"github.com/QuantumNous/new-api/constant"
+	"github.com/QuantumNous/new-api/dto"
+	relayconstant "github.com/QuantumNous/new-api/relay/constant"
+	"github.com/QuantumNous/new-api/setting"
+
 	"github.com/gin-gonic/gin"
 )
 
-func CoverActionToModelName(mjAction string) string {
+func CovertMjpActionToModelName(mjAction string) string {
 	modelName := "mj_" + strings.ToLower(mjAction)
 	if mjAction == constant.MjActionSwapFace {
 		modelName = "swap_face"
@@ -69,7 +70,7 @@ func GetMjRequestModel(relayMode int, midjRequest *dto.MidjourneyRequest) (strin
 			return "", MidjourneyErrorWrapper(constant.MjRequestError, "unknown_relay_action"), false
 		}
 	}
-	modelName := CoverActionToModelName(action)
+	modelName := CovertMjpActionToModelName(action)
 	return modelName, nil, true
 }
 
@@ -212,7 +213,7 @@ func DoMidjourneyHttpRequest(c *gin.Context, timeout time.Duration, fullRequestU
 	defer cancel()
 	resp, err := GetHttpClient().Do(req)
 	if err != nil {
-		common.SysError("do request failed: " + err.Error())
+		common.SysLog("do request failed: " + err.Error())
 		return MidjourneyErrorWithStatusCodeWrapper(constant.MjErrorUnknown, "do_request_failed", http.StatusInternalServerError), nullBytes, err
 	}
 	statusCode := resp.StatusCode
@@ -233,7 +234,7 @@ func DoMidjourneyHttpRequest(c *gin.Context, timeout time.Duration, fullRequestU
 	if err != nil {
 		return MidjourneyErrorWithStatusCodeWrapper(constant.MjErrorUnknown, "read_response_body_failed", statusCode), nullBytes, err
 	}
-	common.CloseResponseBodyGracefully(resp)
+	CloseResponseBodyGracefully(resp)
 	respStr := string(responseBody)
 	log.Printf("respStr: %s", respStr)
 	if respStr == "" {

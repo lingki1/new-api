@@ -1,215 +1,476 @@
-<p align="right">
-   <strong>中文</strong> | <a href="./README.en.md">English</a>
-</p>
 <div align="center">
 
 ![new-api](/web/public/logo.png)
 
 # New API
 
-🍥新一代大模型网关与AI资产管理系统
+🍥 **Next-Generation LLM Gateway and AI Asset Management System**
 
-<a href="https://trendshift.io/repositories/8227" target="_blank"><img src="https://trendshift.io/api/badge/repositories/8227" alt="Calcium-Ion%2Fnew-api | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+<p align="center">
+  <a href="./README.zh_CN.md">简体中文</a> |
+  <a href="./README.zh_TW.md">繁體中文</a> |
+  <strong>English</strong> |
+  <a href="./README.fr.md">Français</a> |
+  <a href="./README.ja.md">日本語</a>
+</p>
 
 <p align="center">
   <a href="https://raw.githubusercontent.com/Calcium-Ion/new-api/main/LICENSE">
     <img src="https://img.shields.io/github/license/Calcium-Ion/new-api?color=brightgreen" alt="license">
-  </a>
-  <a href="https://github.com/Calcium-Ion/new-api/releases/latest">
+  </a><!--
+  --><a href="https://github.com/Calcium-Ion/new-api/releases/latest">
     <img src="https://img.shields.io/github/v/release/Calcium-Ion/new-api?color=brightgreen&include_prereleases" alt="release">
-  </a>
-  <a href="https://github.com/users/Calcium-Ion/packages/container/package/new-api">
-    <img src="https://img.shields.io/badge/docker-ghcr.io-blue" alt="docker">
-  </a>
-  <a href="https://hub.docker.com/r/CalciumIon/new-api">
+  </a><!--
+  --><a href="https://hub.docker.com/r/CalciumIon/new-api">
     <img src="https://img.shields.io/badge/docker-dockerHub-blue" alt="docker">
-  </a>
-  <a href="https://goreportcard.com/report/github.com/Calcium-Ion/new-api">
+  </a><!--
+  --><a href="https://goreportcard.com/report/github.com/Calcium-Ion/new-api">
     <img src="https://goreportcard.com/badge/github.com/Calcium-Ion/new-api" alt="GoReportCard">
   </a>
 </p>
+
+<p align="center">
+  <a href="https://trendshift.io/repositories/20180" target="_blank">
+    <img src="https://trendshift.io/api/badge/repositories/20180" alt="QuantumNous%2Fnew-api | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/>
+  </a>
+  <br>
+  <a href="https://hellogithub.com/repository/QuantumNous/new-api" target="_blank">
+    <img src="https://api.hellogithub.com/v1/widgets/recommend.svg?rid=539ac4217e69431684ad4a0bab768811&claim_uid=tbFPfKIDHpc4TzR" alt="Featured｜HelloGitHub" style="width: 250px; height: 54px;" width="250" height="54" />
+  </a><!--
+  --><a href="https://www.producthunt.com/products/new-api/launches/new-api?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-new-api" target="_blank" rel="noopener noreferrer">
+    <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1047693&theme=light&t=1769577875005" alt="New API - All-in-one AI asset management gateway. | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" />
+  </a>
+</p>
+
+<p align="center">
+  <a href="#-quick-start">Quick Start</a> •
+  <a href="#-key-features">Key Features</a> •
+  <a href="#-deployment">Deployment</a> •
+  <a href="#-documentation">Documentation</a> •
+  <a href="#-help-support">Help</a>
+</p>
+
 </div>
 
-## 📝 项目说明
+## 📝 Project Description
 
-> [!NOTE]  
-> 本项目为开源项目，在[One API](https://github.com/songquanpeng/one-api)的基础上进行二次开发
+> [!IMPORTANT]
+> - This project is for personal learning purposes only, with no guarantee of stability or technical support
+> - Users must comply with OpenAI's [Terms of Use](https://openai.com/policies/terms-of-use) and **applicable laws and regulations**, and must not use it for illegal purposes
+> - According to the [《Interim Measures for the Management of Generative Artificial Intelligence Services》](http://www.cac.gov.cn/2023-07/13/c_1690898327029107.htm), please do not provide any unregistered generative AI services to the public in China.
 
-> [!IMPORTANT]  
-> - 本项目仅供个人学习使用，不保证稳定性，且不提供任何技术支持。
-> - 使用者必须在遵循 OpenAI 的[使用条款](https://openai.com/policies/terms-of-use)以及**法律法规**的情况下使用，不得用于非法用途。
-> - 根据[《生成式人工智能服务管理暂行办法》](http://www.cac.gov.cn/2023-07/13/c_1690898327029107.htm)的要求，请勿对中国地区公众提供一切未经备案的生成式人工智能服务。
+---
 
-<h2>🤝 我们信任的合作伙伴</h2>
-<p id="premium-sponsors">&nbsp;</p>
-<p align="center"><strong>排名不分先后</strong></p>
+## 🤝 Trusted Partners
+
 <p align="center">
-  <a href="https://www.cherry-ai.com/" target=_blank><img
-    src="./docs/images/cherry-studio.png" alt="Cherry Studio" height="120"
-  /></a>
-  <a href="https://bda.pku.edu.cn/" target=_blank><img
-    src="./docs/images/pku.png" alt="北京大学" height="120"
-  /></a>
-  <a href="https://www.compshare.cn/?ytag=GPU_yy_gh_newapi" target=_blank><img
-    src="./docs/images/ucloud.png" alt="UCloud 优刻得" height="120"
-  /></a>
-  <a href="https://www.aliyun.com/" target=_blank><img
-    src="./docs/images/aliyun.png" alt="阿里云" height="120"
-  /></a>
-  <a href="https://io.net/" target=_blank><img
-    src="./docs/images/io-net.png" alt="IO.NET" height="120"
-  /></a>
+  <em>No particular order</em>
 </p>
-<p>&nbsp;</p>
 
-## 📚 文档
+<p align="center">
+  <a href="https://www.cherry-ai.com/" target="_blank">
+    <img src="./docs/images/cherry-studio.png" alt="Cherry Studio" height="80" />
+  </a><!--
+  --><a href="https://github.com/iOfficeAI/AionUi/" target="_blank">
+    <img src="./docs/images/aionui.png" alt="Aion UI" height="80" />
+  </a><!--
+  --><a href="https://bda.pku.edu.cn/" target="_blank">
+    <img src="./docs/images/pku.png" alt="Peking University" height="80" />
+  </a><!--
+  --><a href="https://www.compshare.cn/?ytag=GPU_yy_gh_newapi" target="_blank">
+    <img src="./docs/images/ucloud.png" alt="UCloud" height="80" />
+  </a><!--
+  --><a href="https://www.aliyun.com/" target="_blank">
+    <img src="./docs/images/aliyun.png" alt="Alibaba Cloud" height="80" />
+  </a><!--
+  --><a href="https://io.net/" target="_blank">
+    <img src="./docs/images/io-net.png" alt="IO.NET" height="80" />
+  </a>
+</p>
 
-详细文档请访问我们的官方Wiki：[https://docs.newapi.pro/](https://docs.newapi.pro/)
+---
 
-也可访问AI生成的DeepWiki:
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/QuantumNous/new-api)
+## 🙏 Special Thanks
 
-## ✨ 主要特性
+<p align="center">
+  <a href="https://www.jetbrains.com/?from=new-api" target="_blank">
+    <img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" alt="JetBrains Logo" width="120" />
+  </a>
+</p>
 
-New API提供了丰富的功能，详细特性请参考[特性说明](https://docs.newapi.pro/wiki/features-introduction)：
+<p align="center">
+  <strong>Thanks to <a href="https://www.jetbrains.com/?from=new-api">JetBrains</a> for providing free open-source development license for this project</strong>
+</p>
 
-1. 🎨 全新的UI界面
-2. 🌍 多语言支持
-3. 💰 支持在线充值功能（易支付）
-4. 🔍 支持用key查询使用额度（配合[neko-api-key-tool](https://github.com/Calcium-Ion/neko-api-key-tool)）
-5. 🔄 兼容原版One API的数据库
-6. 💵 支持模型按次数收费
-7. ⚖️ 支持渠道加权随机
-8. 📈 数据看板（控制台）
-9. 🔒 令牌分组、模型限制
-10. 🤖 支持更多授权登陆方式（LinuxDO,Telegram、OIDC）
-11. 🔄 支持Rerank模型（Cohere和Jina），[接口文档](https://docs.newapi.pro/api/jinaai-rerank)
-12. ⚡ 支持OpenAI Realtime API（包括Azure渠道），[接口文档](https://docs.newapi.pro/api/openai-realtime)
-13. ⚡ 支持Claude Messages 格式，[接口文档](https://docs.newapi.pro/api/anthropic-chat)
-14. 支持使用路由/chat2link进入聊天界面
-15. 🧠 支持通过模型名称后缀设置 reasoning effort：
-    1. OpenAI o系列模型
-        - 添加后缀 `-high` 设置为 high reasoning effort (例如: `o3-mini-high`)
-        - 添加后缀 `-medium` 设置为 medium reasoning effort (例如: `o3-mini-medium`)
-        - 添加后缀 `-low` 设置为 low reasoning effort (例如: `o3-mini-low`)
-    2. Claude 思考模型
-        - 添加后缀 `-thinking` 启用思考模式 (例如: `claude-3-7-sonnet-20250219-thinking`)
-16. 🔄 思考转内容功能
-17. 🔄 针对用户的模型限流功能
-18. 💰 缓存计费支持，开启后可以在缓存命中时按照设定的比例计费：
-    1. 在 `系统设置-运营设置` 中设置 `提示缓存倍率` 选项
-    2. 在渠道中设置 `提示缓存倍率`，范围 0-1，例如设置为 0.5 表示缓存命中时按照 50% 计费
-    3. 支持的渠道：
-        - [x] OpenAI
-        - [x] Azure
-        - [x] DeepSeek
-        - [x] Claude
+---
 
-## 模型支持
+## 🚀 Quick Start
 
-此版本支持多种模型，详情请参考[接口文档-中继接口](https://docs.newapi.pro/api)：
+### Using Docker Compose (Recommended)
 
-1. 第三方模型 **gpts** （gpt-4-gizmo-*）
-2. 第三方渠道[Midjourney-Proxy(Plus)](https://github.com/novicezk/midjourney-proxy)接口，[接口文档](https://docs.newapi.pro/api/midjourney-proxy-image)
-3. 第三方渠道[Suno API](https://github.com/Suno-API/Suno-API)接口，[接口文档](https://docs.newapi.pro/api/suno-music)
-4. 自定义渠道，支持填入完整调用地址
-5. Rerank模型（[Cohere](https://cohere.ai/)和[Jina](https://jina.ai/)），[接口文档](https://docs.newapi.pro/api/jinaai-rerank)
-6. Claude Messages 格式，[接口文档](https://docs.newapi.pro/api/anthropic-chat)
-7. Dify，当前仅支持chatflow
-
-## 环境变量配置
-
-详细配置说明请参考[安装指南-环境变量配置](https://docs.newapi.pro/installation/environment-variables)：
-
-- `GENERATE_DEFAULT_TOKEN`：是否为新注册用户生成初始令牌，默认为 `false`
-- `STREAMING_TIMEOUT`：流式回复超时时间，默认300秒
-- `DIFY_DEBUG`：Dify渠道是否输出工作流和节点信息，默认 `true`
-- `FORCE_STREAM_OPTION`：是否覆盖客户端stream_options参数，默认 `true`
-- `GET_MEDIA_TOKEN`：是否统计图片token，默认 `true`
-- `GET_MEDIA_TOKEN_NOT_STREAM`：非流情况下是否统计图片token，默认 `true`
-- `UPDATE_TASK`：是否更新异步任务（Midjourney、Suno），默认 `true`
-- `COHERE_SAFETY_SETTING`：Cohere模型安全设置，可选值为 `NONE`, `CONTEXTUAL`, `STRICT`，默认 `NONE`
-- `GEMINI_VISION_MAX_IMAGE_NUM`：Gemini模型最大图片数量，默认 `16`
-- `MAX_FILE_DOWNLOAD_MB`: 最大文件下载大小，单位MB，默认 `20`
-- `CRYPTO_SECRET`：加密密钥，用于加密数据库内容
-- `AZURE_DEFAULT_API_VERSION`：Azure渠道默认API版本，默认 `2025-04-01-preview`
-- `NOTIFICATION_LIMIT_DURATION_MINUTE`：通知限制持续时间，默认 `10`分钟
-- `NOTIFY_LIMIT_COUNT`：用户通知在指定持续时间内的最大数量，默认 `2`
-- `ERROR_LOG_ENABLED=true`: 是否记录并显示错误日志，默认`false`
-
-## 部署
-
-详细部署指南请参考[安装指南-部署方式](https://docs.newapi.pro/installation)：
-
-> [!TIP]
-> 最新版Docker镜像：`calciumion/new-api:latest`  
-
-### 多机部署注意事项
-- 必须设置环境变量 `SESSION_SECRET`，否则会导致多机部署时登录状态不一致
-- 如果公用Redis，必须设置 `CRYPTO_SECRET`，否则会导致多机部署时Redis内容无法获取
-
-### 部署要求
-- 本地数据库（默认）：SQLite（Docker部署必须挂载`/data`目录）
-- 远程数据库：MySQL版本 >= 5.7.8，PgSQL版本 >= 9.6
-
-### 部署方式
-
-#### 使用宝塔面板Docker功能部署
-安装宝塔面板（**9.2.0版本**及以上），在应用商店中找到**New-API**安装即可。
-[图文教程](./docs/BT.md)
-
-#### 使用Docker Compose部署（推荐）
-```shell
-# 下载项目
-git clone https://github.com/Calcium-Ion/new-api.git
+```bash
+# Clone the project
+git clone https://github.com/QuantumNous/new-api.git
 cd new-api
-# 按需编辑docker-compose.yml
-# 启动
+
+# Edit docker-compose.yml configuration
+nano docker-compose.yml
+
+# Start the service
 docker-compose up -d
 ```
 
-#### 直接使用Docker镜像
-```shell
-# 使用SQLite
-docker run --name new-api -d --restart always -p 3000:3000 -e TZ=Asia/Shanghai -v /home/ubuntu/data/new-api:/data calciumion/new-api:latest
+<details>
+<summary><strong>Using Docker Commands</strong></summary>
 
-# 使用MySQL
-docker run --name new-api -d --restart always -p 3000:3000 -e SQL_DSN="root:123456@tcp(localhost:3306)/oneapi" -e TZ=Asia/Shanghai -v /home/ubuntu/data/new-api:/data calciumion/new-api:latest
+```bash
+# Pull the latest image
+docker pull calciumion/new-api:latest
+
+# Using SQLite (default)
+docker run --name new-api -d --restart always \
+  -p 3000:3000 \
+  -e TZ=Asia/Shanghai \
+  -v ./data:/data \
+  calciumion/new-api:latest
+
+# Using MySQL
+docker run --name new-api -d --restart always \
+  -p 3000:3000 \
+  -e SQL_DSN="root:123456@tcp(localhost:3306)/oneapi" \
+  -e TZ=Asia/Shanghai \
+  -v ./data:/data \
+  calciumion/new-api:latest
 ```
 
-## 渠道重试与缓存
-渠道重试功能已经实现，可以在`设置->运营设置->通用设置`设置重试次数，**建议开启缓存**功能。
+> **💡 Tip:** `-v ./data:/data` will save data in the `data` folder of the current directory, you can also change it to an absolute path like `-v /your/custom/path:/data`
 
-### 缓存设置方法
-1. `REDIS_CONN_STRING`：设置Redis作为缓存
-2. `MEMORY_CACHE_ENABLED`：启用内存缓存（设置了Redis则无需手动设置）
+</details>
 
-## 接口文档
+---
 
-详细接口文档请参考[接口文档](https://docs.newapi.pro/api)：
+🎉 After deployment is complete, visit `http://localhost:3000` to start using!
 
-- [聊天接口（Chat）](https://docs.newapi.pro/api/openai-chat)
-- [图像接口（Image）](https://docs.newapi.pro/api/openai-image)
-- [重排序接口（Rerank）](https://docs.newapi.pro/api/jinaai-rerank)
-- [实时对话接口（Realtime）](https://docs.newapi.pro/api/openai-realtime)
-- [Claude聊天接口（messages）](https://docs.newapi.pro/api/anthropic-chat)
+📖 For more deployment methods, please refer to [Deployment Guide](https://docs.newapi.pro/en/docs/installation)
 
-## 相关项目
-- [One API](https://github.com/songquanpeng/one-api)：原版项目
-- [Midjourney-Proxy](https://github.com/novicezk/midjourney-proxy)：Midjourney接口支持
-- [chatnio](https://github.com/Deeptrain-Community/chatnio)：下一代AI一站式B/C端解决方案
-- [neko-api-key-tool](https://github.com/Calcium-Ion/neko-api-key-tool)：用key查询使用额度
+---
 
-其他基于New API的项目：
-- [new-api-horizon](https://github.com/Calcium-Ion/new-api-horizon)：New API高性能优化版
+## 📚 Documentation
 
-## 帮助支持
+<div align="center">
 
-如有问题，请参考[帮助支持](https://docs.newapi.pro/support)：
-- [社区交流](https://docs.newapi.pro/support/community-interaction)
-- [反馈问题](https://docs.newapi.pro/support/feedback-issues)
-- [常见问题](https://docs.newapi.pro/support/faq)
+### 📖 [Official Documentation](https://docs.newapi.pro/en/docs) | [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/QuantumNous/new-api)
+
+</div>
+
+**Quick Navigation:**
+
+| Category | Link |
+|------|------|
+| 🚀 Deployment Guide | [Installation Documentation](https://docs.newapi.pro/en/docs/installation) |
+| ⚙️ Environment Configuration | [Environment Variables](https://docs.newapi.pro/en/docs/installation/config-maintenance/environment-variables) |
+| 📡 API Documentation | [API Documentation](https://docs.newapi.pro/en/docs/api) |
+| ❓ FAQ | [FAQ](https://docs.newapi.pro/en/docs/support/faq) |
+| 💬 Community Interaction | [Communication Channels](https://docs.newapi.pro/en/docs/support/community-interaction) |
+
+---
+
+## ✨ Key Features
+
+> For detailed features, please refer to [Features Introduction](https://docs.newapi.pro/en/docs/guide/wiki/basic-concepts/features-introduction)
+
+### 🎨 Core Functions
+
+| Feature | Description |
+|------|------|
+| 🎨 New UI | Modern user interface design |
+| 🌍 Multi-language | Supports Simplified Chinese, Traditional Chinese, English, French, Japanese |
+| 🔄 Data Compatibility | Fully compatible with the original One API database |
+| 📈 Data Dashboard | Visual console and statistical analysis |
+| 🔒 Permission Management | Token grouping, model restrictions, user management |
+
+### 💰 Payment and Billing
+
+- ✅ Online recharge (EPay, Stripe)
+- ✅ Pay-per-use model pricing
+- ✅ Cache billing support (OpenAI, Azure, DeepSeek, Claude, Qwen and all supported models)
+- ✅ Flexible billing policy configuration
+
+### 🔐 Authorization and Security
+
+- 😈 Discord authorization login
+- 🤖 LinuxDO authorization login
+- 📱 Telegram authorization login
+- 🔑 OIDC unified authentication
+- 🔍 Key quota query usage (with [neko-api-key-tool](https://github.com/Calcium-Ion/neko-api-key-tool))
+
+### 🚀 Advanced Features
+
+**API Format Support:**
+- ⚡ [OpenAI Responses](https://docs.newapi.pro/en/docs/api/ai-model/chat/openai/create-response)
+- ⚡ [OpenAI Realtime API](https://docs.newapi.pro/en/docs/api/ai-model/realtime/create-realtime-session) (including Azure)
+- ⚡ [Claude Messages](https://docs.newapi.pro/en/docs/api/ai-model/chat/create-message)
+- ⚡ [Google Gemini](https://doc.newapi.pro/en/api/google-gemini-chat)
+- 🔄 [Rerank Models](https://docs.newapi.pro/en/docs/api/ai-model/rerank/create-rerank) (Cohere, Jina)
+
+**Intelligent Routing:**
+- ⚖️ Channel weighted random
+- 🔄 Automatic retry on failure
+- 🚦 User-level model rate limiting
+
+**Format Conversion:**
+- 🔄 **OpenAI Compatible ⇄ Claude Messages**
+- 🔄 **OpenAI Compatible → Google Gemini**
+- 🔄 **Google Gemini → OpenAI Compatible** - Text only, function calling not supported yet
+- 🚧 **OpenAI Compatible ⇄ OpenAI Responses** - In development
+- 🔄 **Thinking-to-content functionality**
+
+**Reasoning Effort Support:**
+
+<details>
+<summary>View detailed configuration</summary>
+
+**OpenAI series models:**
+- `o3-mini-high` - High reasoning effort
+- `o3-mini-medium` - Medium reasoning effort
+- `o3-mini-low` - Low reasoning effort
+- `gpt-5-high` - High reasoning effort
+- `gpt-5-medium` - Medium reasoning effort
+- `gpt-5-low` - Low reasoning effort
+
+**Claude thinking models:**
+- `claude-3-7-sonnet-20250219-thinking` - Enable thinking mode
+
+**Google Gemini series models:**
+- `gemini-2.5-flash-thinking` - Enable thinking mode
+- `gemini-2.5-flash-nothinking` - Disable thinking mode
+- `gemini-2.5-pro-thinking` - Enable thinking mode
+- `gemini-2.5-pro-thinking-128` - Enable thinking mode with thinking budget of 128 tokens
+- You can also append `-low`, `-medium`, or `-high` to any Gemini model name to request the corresponding reasoning effort (no extra thinking-budget suffix needed).
+
+</details>
+
+---
+
+## 🤖 Model Support
+
+> For details, please refer to [API Documentation - Relay Interface](https://docs.newapi.pro/en/docs/api)
+
+| Model Type | Description | Documentation |
+|---------|------|------|
+| 🤖 OpenAI-Compatible | OpenAI compatible models | [Documentation](https://docs.newapi.pro/en/docs/api/ai-model/chat/openai/createchatcompletion) |
+| 🤖 OpenAI Responses | OpenAI Responses format | [Documentation](https://docs.newapi.pro/en/docs/api/ai-model/chat/openai/createresponse) |
+| 🎨 Midjourney-Proxy | [Midjourney-Proxy(Plus)](https://github.com/novicezk/midjourney-proxy) | [Documentation](https://doc.newapi.pro/api/midjourney-proxy-image) |
+| 🎵 Suno-API | [Suno API](https://github.com/Suno-API/Suno-API) | [Documentation](https://doc.newapi.pro/api/suno-music) |
+| 🔄 Rerank | Cohere, Jina | [Documentation](https://docs.newapi.pro/en/docs/api/ai-model/rerank/creatererank) |
+| 💬 Claude | Messages format | [Documentation](https://docs.newapi.pro/en/docs/api/ai-model/chat/createmessage) |
+| 🌐 Gemini | Google Gemini format | [Documentation](https://docs.newapi.pro/en/docs/api/ai-model/chat/gemini/geminirelayv1beta) |
+| 🔧 Dify | ChatFlow mode | - |
+| 🎯 Custom | Supports complete call address | - |
+
+### 📡 Supported Interfaces
+
+<details>
+<summary>View complete interface list</summary>
+
+- [Chat Interface (Chat Completions)](https://docs.newapi.pro/en/docs/api/ai-model/chat/openai/createchatcompletion)
+- [Response Interface (Responses)](https://docs.newapi.pro/en/docs/api/ai-model/chat/openai/createresponse)
+- [Image Interface (Image)](https://docs.newapi.pro/en/docs/api/ai-model/images/openai/post-v1-images-generations)
+- [Audio Interface (Audio)](https://docs.newapi.pro/en/docs/api/ai-model/audio/openai/create-transcription)
+- [Video Interface (Video)](https://docs.newapi.pro/en/docs/api/ai-model/audio/openai/createspeech)
+- [Embedding Interface (Embeddings)](https://docs.newapi.pro/en/docs/api/ai-model/embeddings/createembedding)
+- [Rerank Interface (Rerank)](https://docs.newapi.pro/en/docs/api/ai-model/rerank/creatererank)
+- [Realtime Conversation (Realtime)](https://docs.newapi.pro/en/docs/api/ai-model/realtime/createrealtimesession)
+- [Claude Chat](https://docs.newapi.pro/en/docs/api/ai-model/chat/createmessage)
+- [Google Gemini Chat](https://docs.newapi.pro/en/docs/api/ai-model/chat/gemini/geminirelayv1beta)
+
+</details>
+
+---
+
+## 🚢 Deployment
+
+> [!TIP]
+> **Latest Docker image:** `calciumion/new-api:latest`
+
+### 📋 Deployment Requirements
+
+| Component | Requirement |
+|------|------|
+| **Local database** | SQLite (Docker must mount `/data` directory)|
+| **Remote database** | MySQL ≥ 5.7.8 or PostgreSQL ≥ 9.6 |
+| **Container engine** | Docker / Docker Compose |
+
+### ⚙️ Environment Variable Configuration
+
+<details>
+<summary>Common environment variable configuration</summary>
+
+| Variable Name | Description | Default Value |
+|--------|------|--------|
+| `SESSION_SECRET` | Session secret (required for multi-machine deployment) | - |
+| `CRYPTO_SECRET` | Encryption secret (required for Redis) | - |
+| `SQL_DSN` | Database connection string | - |
+| `REDIS_CONN_STRING` | Redis connection string | - |
+| `STREAMING_TIMEOUT` | Streaming timeout (seconds) | `300` |
+| `STREAM_SCANNER_MAX_BUFFER_MB` | Max per-line buffer (MB) for the stream scanner; increase when upstream sends huge image/base64 payloads | `64` |
+| `MAX_REQUEST_BODY_MB` | Max request body size (MB, counted **after decompression**; prevents huge requests/zip bombs from exhausting memory). Exceeding it returns `413` | `32` |
+| `AZURE_DEFAULT_API_VERSION` | Azure API version | `2025-04-01-preview` |
+| `ERROR_LOG_ENABLED` | Error log switch | `false` |
+| `PYROSCOPE_URL` | Pyroscope server address | - |
+| `PYROSCOPE_APP_NAME` | Pyroscope application name | `new-api` |
+| `PYROSCOPE_BASIC_AUTH_USER` | Pyroscope basic auth user | - |
+| `PYROSCOPE_BASIC_AUTH_PASSWORD` | Pyroscope basic auth password | - |
+| `PYROSCOPE_MUTEX_RATE` | Pyroscope mutex sampling rate | `5` |
+| `PYROSCOPE_BLOCK_RATE` | Pyroscope block sampling rate | `5` |
+| `HOSTNAME` | Hostname tag for Pyroscope | `new-api` |
+
+📖 **Complete configuration:** [Environment Variables Documentation](https://docs.newapi.pro/en/docs/installation/config-maintenance/environment-variables)
+
+</details>
+
+### 🔧 Deployment Methods
+
+<details>
+<summary><strong>Method 1: Docker Compose (Recommended)</strong></summary>
+
+```bash
+# Clone the project
+git clone https://github.com/QuantumNous/new-api.git
+cd new-api
+
+# Edit configuration
+nano docker-compose.yml
+
+# Start service
+docker-compose up -d
+```
+
+</details>
+
+<details>
+<summary><strong>Method 2: Docker Commands</strong></summary>
+
+**Using SQLite:**
+```bash
+docker run --name new-api -d --restart always \
+  -p 3000:3000 \
+  -e TZ=Asia/Shanghai \
+  -v ./data:/data \
+  calciumion/new-api:latest
+```
+
+**Using MySQL:**
+```bash
+docker run --name new-api -d --restart always \
+  -p 3000:3000 \
+  -e SQL_DSN="root:123456@tcp(localhost:3306)/oneapi" \
+  -e TZ=Asia/Shanghai \
+  -v ./data:/data \
+  calciumion/new-api:latest
+```
+
+> **💡 Path explanation:**
+> - `./data:/data` - Relative path, data saved in the data folder of the current directory
+> - You can also use absolute path, e.g.: `/your/custom/path:/data`
+
+</details>
+
+<details>
+<summary><strong>Method 3: BaoTa Panel</strong></summary>
+
+1. Install BaoTa Panel (≥ 9.2.0 version)
+2. Search for **New-API** in the application store
+3. One-click installation
+
+📖 [Tutorial with images](./docs/BT.md)
+
+</details>
+
+### ⚠️ Multi-machine Deployment Considerations
+
+> [!WARNING]
+> - **Must set** `SESSION_SECRET` - Otherwise login status inconsistent
+> - **Shared Redis must set** `CRYPTO_SECRET` - Otherwise data cannot be decrypted
+
+### 🔄 Channel Retry and Cache
+
+**Retry configuration:** `Settings → Operation Settings → General Settings → Failure Retry Count`
+
+**Cache configuration:**
+- `REDIS_CONN_STRING`: Redis cache (recommended)
+- `MEMORY_CACHE_ENABLED`: Memory cache
+
+---
+
+## 🔗 Related Projects
+
+### Upstream Projects
+
+| Project | Description |
+|------|------|
+| [One API](https://github.com/songquanpeng/one-api) | Original project base |
+| [Midjourney-Proxy](https://github.com/novicezk/midjourney-proxy) | Midjourney interface support |
+
+### Supporting Tools
+
+| Project | Description |
+|------|------|
+| [neko-api-key-tool](https://github.com/Calcium-Ion/neko-api-key-tool) | Key quota query tool |
+| [new-api-horizon](https://github.com/Calcium-Ion/new-api-horizon) | New API high-performance optimized version |
+
+---
+
+## 💬 Help Support
+
+### 📖 Documentation Resources
+
+| Resource | Link |
+|------|------|
+| 📘 FAQ | [FAQ](https://docs.newapi.pro/en/docs/support/faq) |
+| 💬 Community Interaction | [Communication Channels](https://docs.newapi.pro/en/docs/support/community-interaction) |
+| 🐛 Issue Feedback | [Issue Feedback](https://docs.newapi.pro/en/docs/support/feedback-issues) |
+| 📚 Complete Documentation | [Official Documentation](https://docs.newapi.pro/en/docs) |
+
+### 🤝 Contribution Guide
+
+Welcome all forms of contribution!
+
+- 🐛 Report Bugs
+- 💡 Propose New Features
+- 📝 Improve Documentation
+- 🔧 Submit Code
+
+---
+
+## 📜 License
+
+This project is licensed under the [GNU Affero General Public License v3.0 (AGPLv3)](./LICENSE).
+
+This is an open-source project developed based on [One API](https://github.com/songquanpeng/one-api) (MIT License).
+
+If your organization's policies do not permit the use of AGPLv3-licensed software, or if you wish to avoid the open-source obligations of AGPLv3, please contact us at: [support@quantumnous.com](mailto:support@quantumnous.com)
+
+---
 
 ## 🌟 Star History
 
+<div align="center">
+
 [![Star History Chart](https://api.star-history.com/svg?repos=Calcium-Ion/new-api&type=Date)](https://star-history.com/#Calcium-Ion/new-api&Date)
+
+</div>
+
+---
+
+<div align="center">
+
+### 💖 Thank you for using New API
+
+If this project is helpful to you, welcome to give us a ⭐️ Star！
+
+**[Official Documentation](https://docs.newapi.pro/en/docs)** • **[Issue Feedback](https://github.com/Calcium-Ion/new-api/issues)** • **[Latest Release](https://github.com/Calcium-Ion/new-api/releases)**
+
+<sub>Built with ❤️ by QuantumNous</sub>
+
+</div>
